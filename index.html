@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 ギャラリー</title>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- フォント -->
@@ -13,93 +13,277 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Cloudinary Product Gallery -->
-  <link rel="stylesheet" href="https://product-gallery.cloudinary.com/all.css">
-  <script src="https://product-gallery.cloudinary.com/all.js" type="text/javascript"></script>
-
   <style>
     body {
       font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #fff7ff 0, #f3e8ff 30%, #f9fafb 70%);
     }
     .title-font {
       font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
       letter-spacing: 0.08em;
     }
+    .fade-in {
+      animation: fade-in 0.4s ease-out;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
-<body class="bg-gradient-to-b from-purple-50 via-white to-purple-100 min-h-screen px-4 py-8">
+<body class="min-h-screen px-4 py-6">
+  <div class="max-w-5xl mx-auto">
 
-  <div class="max-w-6xl mx-auto">
     <!-- ヘッダー -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <header class="flex items-center justify-between mb-4">
       <div>
-        <h1 class="title-font text-2xl md:text-3xl font-bold text-purple-700">
+        <h1 class="title-font text-xl md:text-2xl font-bold text-purple-700">
           多和楽杯2025 ギャラリー
         </h1>
-        <p class="text-xs md:text-sm text-gray-500 mt-2">
+        <p class="text-xs md:text-sm text-gray-600 mt-1">
           コンペ当日にみんながアップしてくれた写真・動画が、自動でここに並びます。
         </p>
       </div>
-
       <a
         href="https://tawaracup-2025-photo.netlify.app/"
-        class="inline-flex items-center gap-1 text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-4 py-2 hover:bg-purple-50 hover:shadow-sm transition"
+        class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
       >
         ← アップロード画面に戻る
       </a>
     </header>
 
     <!-- 保存方法の案内 -->
-    <section class="mb-4">
-      <div class="bg-white/80 backdrop-blur-sm border border-purple-100 rounded-xl px-4 py-3 text-xs md:text-sm text-gray-600 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <p class="font-medium text-purple-700">
-          ✅ 写真・動画の保存方法
+    <div class="mb-4 bg-white/80 border border-purple-100 rounded-2xl px-4 py-3 shadow-sm flex items-start gap-2 text-xs md:text-sm text-gray-600">
+      <span class="mt-0.5 text-green-500">✅</span>
+      <div>
+        <div class="font-semibold text-purple-700 mb-0.5">写真・動画の保存方法</div>
+        <p>
+          スマホ：保存したい写真や動画を<strong>タップ → 画面が開いた状態で長押し</strong>し、「写真に追加」「ビデオを保存」などを選択<br>
+          PC：サムネイルをクリック → 画像/動画が開いたら右クリックして「名前を付けて保存」
         </p>
-        <div class="space-y-1 md:space-y-0 md:flex md:flex-col md:items-end text-[11px] md:text-xs">
-          <p>スマホ：保存したい画像・動画を開いて長押し → 「写真に追加」などを選択</p>
-          <p>PC：画像・動画を開いて右クリック → 「名前を付けて保存」</p>
-        </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ギャラリー本体 -->
-    <section>
-      <div class="bg-white rounded-3xl shadow-xl px-2 md:px-4 py-4 md:py-6 border border-purple-100">
-        <div id="tawaragallery" class="rounded-2xl overflow-hidden"></div>
+    <!-- タブ -->
+    <div class="mb-4 flex gap-2">
+      <button
+        id="tab-images"
+        class="flex-1 text-sm md:text-base rounded-full px-4 py-2 font-medium bg-purple-600 text-white shadow-md hover:bg-purple-700 transition"
+        data-type="image"
+      >
+        📷 写真
+      </button>
+      <button
+        id="tab-videos"
+        class="flex-1 text-sm md:text-base rounded-full px-4 py-2 font-medium bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition"
+        data-type="video"
+      >
+        🎥 動画
+      </button>
+    </div>
+
+    <!-- グリッド本体 -->
+    <section id="gallery-section" class="bg-white/80 rounded-3xl shadow-lg p-3 md:p-4 min-h-[200px]">
+      <div id="loading" class="text-center text-gray-500 text-sm py-10">
+        読み込み中です…
+      </div>
+
+      <div id="empty" class="hidden text-center text-gray-400 text-sm py-10">
+        まだこのタブにはメディアがありません。
+      </div>
+
+      <div
+        id="grid"
+        class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 fade-in"
+      >
+        <!-- ここに JS でカードを追加 -->
       </div>
     </section>
 
     <!-- フッター -->
-    <footer class="mt-8 text-center text-[11px] md:text-xs text-gray-400">
+    <footer class="mt-6 text-center text-[11px] text-gray-400">
       © 2025 多和楽杯コンペ実行委員会
     </footer>
   </div>
 
   <script>
-    // Cloudinary Product Gallery 設定
-    const gallery = cloudinary.galleryWidget({
-      cloudName: 'dpef3dzrk',
-      container: '#tawaragallery',
+    const CLOUD_NAME = "dpef3dzrk";
+    const TAG = "tawarahai2025";
 
-      // 画像・動画に付けているタグを指定（両方とも tawarahai2025 を付ける）
-      mediaAssets: [
-        { tag: 'tawarahai2025' }
-      ],
+    const tabImages = document.getElementById("tab-images");
+    const tabVideos = document.getElementById("tab-videos");
+    const loadingEl = document.getElementById("loading");
+    const emptyEl = document.getElementById("empty");
+    const gridEl = document.getElementById("grid");
 
-      aspectRatio: "16:9",
-      zoom: true,
-      carouselLocation: "bottom",  // 下にサムネイル
-      themeProps: {
-        primary: "#7c3aed",
-        active: "#4c1d95",
-        text: "#111827",
-        background: "#ffffff",
-        thumbnailHoverBorder: "#a855f7"
+    let cache = {
+      image: null,
+      video: null,
+    };
+
+    function setActiveTab(type) {
+      const activeClasses = "bg-purple-600 text-white shadow-md border-transparent";
+      const inactiveClasses = "bg-white text-purple-700 border border-purple-200 shadow-none";
+
+      if (type === "image") {
+        tabImages.className = tabImages.className
+          .replace(inactiveClasses, "")
+          .replace("  ", " ")
+          .trim();
+        tabVideos.className = tabVideos.className
+          .replace(activeClasses, "")
+          .replace("  ", " ")
+          .trim();
+
+        tabImages.classList.add(...activeClasses.split(" "));
+        tabVideos.classList.add(...inactiveClasses.split(" "));
+      } else {
+        tabVideos.className = tabVideos.className
+          .replace(inactiveClasses, "")
+          .replace("  ", " ")
+          .trim();
+        tabImages.className = tabImages.className
+          .replace(activeClasses, "")
+          .replace("  ", " ")
+          .trim();
+
+        tabVideos.classList.add(...activeClasses.split(" "));
+        tabImages.classList.add(...inactiveClasses.split(" "));
       }
-      // navigation オプションは削除（これが原因でエラーになっていました）
-    });
+    }
 
-    gallery.render();
+    function createImageCard(resource) {
+      const publicId = resource.public_id;
+      const format = resource.format;
+      const secureUrl = resource.secure_url;
+
+      // サムネイル（正方形・軽量）
+      const thumbUrl =
+        "https://res.cloudinary.com/" +
+        CLOUD_NAME +
+        "/image/upload/c_fill,w_800,h_800,q_auto,f_auto/" +
+        publicId +
+        "." +
+        format;
+
+      const fileName = publicId.split("/").pop();
+
+      const card = document.createElement("div");
+      card.className = "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition";
+
+      card.innerHTML = `
+        <a href="${secureUrl}" target="_blank" rel="noopener noreferrer" class="block">
+          <img
+            src="${thumbUrl}"
+            alt="${fileName}"
+            class="w-full h-40 md:h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </a>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-[10px] text-white px-2 py-1 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition">
+          <span class="truncate">📷 ${fileName}</span>
+          <a
+            href="${secureUrl}"
+            download="${fileName}"
+            class="px-2 py-0.5 rounded-full bg-white/80 text-[10px] text-purple-700 font-semibold hover:bg-white"
+          >
+            ↓ 保存
+          </a>
+        </div>
+      `;
+      return card;
+    }
+
+    function createVideoCard(resource) {
+      const publicId = resource.public_id;
+      const format = resource.format;
+      const secureUrl = resource.secure_url;
+      const fileName = publicId.split("/").pop();
+
+      // ポスター用サムネイル（先頭1秒を切り出し）
+      const posterUrl =
+        "https://res.cloudinary.com/" +
+        CLOUD_NAME +
+        "/video/upload/so_0,du_1,c_fill,w_800,h_800,q_auto,f_auto/" +
+        publicId +
+        "." +
+        format;
+
+      const card = document.createElement("div");
+      card.className = "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition";
+
+      card.innerHTML = `
+        <a href="${secureUrl}" target="_blank" rel="noopener noreferrer" class="block">
+          <video
+            src="${secureUrl}"
+            poster="${posterUrl}"
+            class="w-full h-40 md:h-44 object-cover"
+            playsinline
+            controls
+          ></video>
+        </a>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-[10px] text-white px-2 py-1 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition">
+          <span class="truncate">🎥 ${fileName}</span>
+          <a
+            href="${secureUrl}"
+            download="${fileName}"
+            class="px-2 py-0.5 rounded-full bg-white/80 text-[10px] text-purple-700 font-semibold hover:bg-white"
+          >
+            ↓ 保存
+          </a>
+        </div>
+      `;
+      return card;
+    }
+
+    async function loadMedia(type) {
+      setActiveTab(type);
+      loadingEl.classList.remove("hidden");
+      emptyEl.classList.add("hidden");
+      gridEl.classList.add("hidden");
+      gridEl.innerHTML = "";
+
+      try {
+        // すでに取得済みならキャッシュから
+        let resources = cache[type];
+        if (!resources) {
+          const url = `https://res.cloudinary.com/${CLOUD_NAME}/${type}/list/${TAG}.json`;
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error("failed to fetch");
+          }
+          const data = await res.json();
+          resources = data.resources || [];
+          cache[type] = resources;
+        }
+
+        loadingEl.classList.add("hidden");
+
+        if (!resources.length) {
+          emptyEl.classList.remove("hidden");
+          gridEl.classList.add("hidden");
+          return;
+        }
+
+        // カードを並べる
+        resources.forEach((r) => {
+          const card = type === "image" ? createImageCard(r) : createVideoCard(r);
+          gridEl.appendChild(card);
+        });
+
+        emptyEl.classList.add("hidden");
+        gridEl.classList.remove("hidden");
+      } catch (e) {
+        console.error(e);
+        loadingEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
+      }
+    }
+
+    // タブのクリックイベント
+    tabImages.addEventListener("click", () => loadMedia("image"));
+    tabVideos.addEventListener("click", () => loadMedia("video"));
+
+    // 初期表示は「写真」タブ
+    loadMedia("image");
   </script>
 </body>
 </html>
