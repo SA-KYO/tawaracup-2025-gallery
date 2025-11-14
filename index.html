@@ -8,7 +8,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント（アップロードページと合わせる） -->
+  <!-- フォント（おしゃれ系・キアロっぽい雰囲気） -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
 <body class="bg-gradient-to-b from-gray-50 to-purple-50 min-h-screen px-4 py-6">
 
   <div class="max-w-5xl mx-auto">
-    <header class="flex items-center justify-between mb-6 relative z-10">
+    <header class="flex items-center justify-between mb-6">
       <div>
         <h1 class="title-font text-xl md:text-2xl font-bold text-purple-700">
           多和楽杯2025 ギャラリー
@@ -40,7 +40,7 @@
         </p>
       </div>
 
-      <!-- アップロード画面へ戻るボタン（アップロードサイトのURLに合わせてください） -->
+      <!-- ★アップロード画面への戻るボタン（URLは実際のアップロードサイトに合わせてください） -->
       <a
         href="https://tawaracup-2025-photo.netlify.app/"
         class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
@@ -55,19 +55,21 @@
 
   <script>
     // Cloudinary Product Gallery
-    // ★ ここで tag: 'tawarahai2025' を指定します
     const gallery = cloudinary.galleryWidget({
-      cloudName: 'dpef3dzrk',
+      cloudName: 'dpef3dzrk',          // ★佐々木さんの Cloud name
       container: '#tawaragallery',
       mediaAssets: [
-        { tag: 'tawarahai2025' }   // ← 画像に付けたタグと完全一致させる
+        {
+          tag: 'tawarahai2025',       // ★このタグが付いた画像・動画をすべて表示
+          mediaType: 'all'            // 画像・動画どちらも
+        }
       ],
-      aspectRatio: "16:9",
+      carouselLocation: 'bottom',
+      aspectRatio: '16:9',
       zoom: true,
-      carouselLocation: "bottom",
       themeProps: {
-        primary: "#7c3aed",
-        active: "#4c1d95"
+        primary: '#7c3aed',
+        active: '#4c1d95'
       }
     });
 
