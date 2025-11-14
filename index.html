@@ -151,6 +151,30 @@
     const PHOTO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG_PHOTOS}.json`;
     const VIDEO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG_VIDEOS}.json`;
 
+    // ===== URL ヘルパー =====
+    function buildImageUrl(item) {
+      // secure_url or url があればそれを使う
+      if (item.secure_url) return item.secure_url;
+      if (item.url) return item.url.replace("http://", "https://");
+      // 最悪 public_id から組み立てる
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.public_id}.${item.format}`;
+    }
+
+    function buildVideoUrl(item) {
+      if (item.secure_url) return item.secure_url;
+      if (item.url) return item.url.replace("http://", "https://");
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/${item.public_id}.${item.format}`;
+    }
+
+    function buildImageThumbUrl(item) {
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/c_fill,w_800,h_800,q_auto,f_auto/${item.public_id}.${item.format}`;
+    }
+
+    function buildVideoPosterUrl(item) {
+      // 1秒地点のサムネイル
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_1/${item.public_id}.jpg`;
+    }
+
     // ===== DOM 要素 =====
     const photosGrid = document.getElementById("photos-grid");
     const videosGrid = document.getElementById("videos-grid");
@@ -239,8 +263,8 @@
         resources.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 
         resources.forEach((item) => {
-          const originalUrl = item.secure_url;
-          const thumbUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/c_fill,w_800,h_800,q_auto,f_auto/${item.public_id}.${item.format}`;
+          const originalUrl = buildImageUrl(item);
+          const thumbUrl = buildImageThumbUrl(item);
 
           const card = document.createElement("div");
           card.className =
@@ -309,10 +333,8 @@
         resources.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 
         resources.forEach((item) => {
-          const originalUrl = item.secure_url;
-
-          // ポスター用サムネイル（1秒地点の静止画）
-          const posterUrl = `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_1/${item.public_id}.jpg`;
+          const originalUrl = buildVideoUrl(item);
+          const posterUrl = buildVideoPosterUrl(item);
 
           const card = document.createElement("div");
           card.className =
