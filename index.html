@@ -133,6 +133,10 @@
           </p>
         </div>
 
+        <p id="videoLoading" class="text-xs md:text-sm text-slate-400 mt-2 hidden">
+          動画を読み込み中です…
+        </p>
+
         <p id="videoEmpty" class="text-xs md:text-sm text-slate-500 mt-2 hidden">
           まだ動画がアップロードされていません。
         </p>
@@ -159,11 +163,15 @@
     const videoGrid = document.getElementById("videoGrid");
     const photoEmpty = document.getElementById("photoEmpty");
     const videoEmpty = document.getElementById("videoEmpty");
+    const videoLoading = document.getElementById("videoLoading");
 
     const photoSection = document.getElementById("photoSection");
     const videoSection = document.getElementById("videoSection");
     const photoTabBtn = document.getElementById("photoTabBtn");
     const videoTabBtn = document.getElementById("videoTabBtn");
+
+    let videosLoaded = false;
+    let videosLoadingNow = false;
 
     // ▼ タブ切り替え
     function activatePhotoTab() {
@@ -178,7 +186,7 @@
         "bg-white text-emerald-700 border border-emerald-100 hover:bg-emerald-50 transition";
     }
 
-    function activateVideoTab() {
+    async function activateVideoTab() {
       videoSection.classList.remove("hidden");
       photoSection.classList.add("hidden");
 
@@ -188,6 +196,11 @@
       photoTabBtn.className =
         "flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full " +
         "bg-white text-emerald-700 border border-emerald-100 hover:bg-emerald-50 transition";
+
+      // 初回だけ動画を読み込み（重い処理は1回だけ）
+      if (!videosLoaded && !videosLoadingNow) {
+        await loadVideos();
+      }
     }
 
     photoTabBtn.addEventListener("click", activatePhotoTab);
@@ -213,9 +226,7 @@
     // ▼ context から caption / alt を安全に取得（customにも対応）
     function getContextValue(item, key) {
       if (!item.context) return "";
-      // 直下の caption / alt
       if (item.context[key]) return item.context[key];
-      // custom の中にある場合
       if (item.context.custom && item.context.custom[key]) {
         return item.context.custom[key];
       }
@@ -235,7 +246,7 @@
       window.open(url, "_blank", "noopener");
     }
 
-    // ▼ 画像カード作成
+    // ▼ 画像カード
     function buildImageCard(item) {
       const url =
         item.secure_url ||
@@ -251,7 +262,6 @@
       wrapper.className =
         "bg-white/90 rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex flex-col";
 
-      // 画像部分
       const imgWrapper = document.createElement("div");
       imgWrapper.className =
         "relative aspect-[4/3] overflow-hidden cursor-pointer bg-slate-100";
@@ -268,7 +278,6 @@
       imgWrapper.appendChild(img);
       wrapper.appendChild(imgWrapper);
 
-      // テキスト部分（名前＋コメント＋ボタン）
       const info = document.createElement("div");
       info.className = "px-3 py-2.5 flex flex-col gap-1";
 
@@ -308,7 +317,7 @@
       return wrapper;
     }
 
-    // ▼ 動画カード作成
+    // ▼ 動画カード
     function buildVideoCard(item) {
       const url =
         item.secure_url ||
@@ -374,9 +383,8 @@
       return wrapper;
     }
 
-    // ▼ 初期化
-    async function initGallery() {
-      // 画像リスト
+    // ▼ 画像読み込み（初回）
+    async function loadImages() {
       const images = await fetchResources("image");
       if (!images || images.length === 0) {
         photoEmpty.classList.remove("hidden");
@@ -386,20 +394,37 @@
           photoGrid.appendChild(card);
         });
       }
+    }
 
-      // 動画リスト
+    // ▼ 動画読み込み（動画タブを初めて開いたときだけ）
+    async function loadVideos() {
+      videosLoadingNow = true;
+      videoLoading.classList.remove("hidden");
+      videoEmpty.classList.add("hidden");
+
       const videos = await fetchResources("video");
+
+      videoLoading.classList.add("hidden");
+      videosLoadingNow = false;
+
       if (!videos || videos.length === 0) {
         videoEmpty.classList.remove("hidden");
-      } else {
-        videos.forEach((item) => {
-          const card = buildVideoCard(item);
-          videoGrid.appendChild(card);
-        });
+        videosLoaded = true;
+        return;
       }
 
-      // 初期タブは写真
-      activatePhotoTab();
+      videos.forEach((item) => {
+        const card = buildVideoCard(item);
+        videoGrid.appendChild(card);
+      });
+
+      videosLoaded = true;
+    }
+
+    // ▼ 初期化
+    async function initGallery() {
+      await loadImages();
+      activatePhotoTab(); // デフォルトは写真タブ
     }
 
     initGallery();
