@@ -8,7 +8,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント -->
+  <!-- フォント（アップロードページと合わせる） -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
         </p>
       </div>
 
-      <!-- 戻るボタン -->
+      <!-- アップロード画面へ戻るボタン（アップロードサイトのURLに合わせてください） -->
       <a
         href="https://tawaracup-2025-photo.netlify.app/"
         class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
@@ -55,15 +55,13 @@
 
   <script>
     // Cloudinary Product Gallery
+    // ★ ここで tag: 'tawarahai2025' を指定します
     const gallery = cloudinary.galleryWidget({
       cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
-
-      // 🔥 ここを folder ではなく tag で指定！
       mediaAssets: [
-        { tag: 'tawarahai2025' }
+        { tag: 'tawarahai2025' }   // ← 画像に付けたタグと完全一致させる
       ],
-
       aspectRatio: "16:9",
       zoom: true,
       carouselLocation: "bottom",
