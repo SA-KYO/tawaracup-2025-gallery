@@ -8,7 +8,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント（アップロードページと合わせる） -->
+  <!-- フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -39,12 +39,14 @@
           アップロードされた写真・動画が自動でここに並びます。
         </p>
       </div>
-<a
-  href="https://tawaracup-2025-photo.netlify.app/"
-  class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
->
-  ← アップロード画面に戻る
-</a>
+
+      <!-- 戻るボタン -->
+      <a
+        href="https://tawaracup-2025-photo.netlify.app/"
+        class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
+      >
+        ← アップロード画面に戻る
+      </a>
     </header>
 
     <!-- Cloudinary ギャラリー -->
@@ -52,13 +54,16 @@
   </div>
 
   <script>
-    // Cloudinary Product Gallery（フォルダ tawarahai-2025 を表示）
+    // Cloudinary Product Gallery
     const gallery = cloudinary.galleryWidget({
       cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
+
+      // 🔥 ここを folder ではなく tag で指定！
       mediaAssets: [
-        { folder: 'tawarahai-2025' }   // ★ここを folder 指定に変更
+        { tag: 'tawarahai2025' }
       ],
+
       aspectRatio: "16:9",
       zoom: true,
       carouselLocation: "bottom",
