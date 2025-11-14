@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 ギャラリー</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind（デザイン用。なくてもOK） -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント（おしゃれ系・キアロっぽい雰囲気） -->
+  <!-- フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Cloudinary Product Gallery -->
   <link rel="stylesheet" href="https://product-gallery.cloudinary.com/all.css">
-  <script src="https://product-gallery.cloudinary.com/all.js" type="text/javascript"></script>
+  <script src="https://product-gallery.cloudinary.com/all.js"></script>
 
   <style>
     body {
@@ -40,7 +40,6 @@
         </p>
       </div>
 
-      <!-- ★アップロード画面への戻るボタン（URLは実際のアップロードサイトに合わせてください） -->
       <a
         href="https://tawaracup-2025-photo.netlify.app/"
         class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
@@ -49,28 +48,19 @@
       </a>
     </header>
 
-    <!-- Cloudinary ギャラリー -->
+    <!-- Cloudinary ギャラリーを描画するコンテナ -->
     <div id="tawaragallery" class="bg-white rounded-2xl shadow-lg p-3 md:p-4"></div>
   </div>
 
   <script>
-    // Cloudinary Product Gallery
+    // ★ここが一番大事：tag = 「tawarahai2025」
+    // Cloudinary の「Tags」に tawarahai2025 が付いている画像・動画だけを表示します
     const gallery = cloudinary.galleryWidget({
-      cloudName: 'dpef3dzrk',          // ★佐々木さんの Cloud name
+      cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
       mediaAssets: [
-        {
-          tag: 'tawarahai2025',       // ★このタグが付いた画像・動画をすべて表示
-          mediaType: 'all'            // 画像・動画どちらも
-        }
-      ],
-      carouselLocation: 'bottom',
-      aspectRatio: '16:9',
-      zoom: true,
-      themeProps: {
-        primary: '#7c3aed',
-        active: '#4c1d95'
-      }
+        { tag: 'tawarahai2025' }  // タグ指定のみ（余計なオプションは一旦外す）
+      ]
     });
 
     gallery.render();
