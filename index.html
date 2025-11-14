@@ -75,8 +75,30 @@
 
     <!-- カード本体 -->
     <section class="glass-card p-5 md:p-7">
+      <!-- タブ -->
+      <div class="flex items-center gap-2 mb-5 border-b border-slate-100 pb-3">
+        <button
+          id="photoTabBtn"
+          class="flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full
+                 bg-emerald-600 text-white shadow-sm shadow-emerald-300/60
+                 transition"
+          type="button"
+        >
+          写真
+        </button>
+        <button
+          id="videoTabBtn"
+          class="flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full
+                 bg-white text-emerald-700 border border-emerald-100
+                 hover:bg-emerald-50 transition"
+          type="button"
+        >
+          動画
+        </button>
+      </div>
+
       <!-- 写真ギャラリー -->
-      <section class="mb-8">
+      <section id="photoSection">
         <div class="flex items-baseline justify-between mb-3">
           <h2 class="text-sm md:text-base font-semibold text-slate-800 flex items-center gap-2">
             <span class="w-1.5 h-6 rounded-full bg-emerald-500"></span>
@@ -99,10 +121,8 @@
         </div>
       </section>
 
-      <hr class="my-6 border-dashed border-slate-200" />
-
       <!-- 動画ギャラリー -->
-      <section>
+      <section id="videoSection" class="hidden">
         <div class="flex items-baseline justify-between mb-3">
           <h2 class="text-sm md:text-base font-semibold text-slate-800 flex items-center gap-2">
             <span class="w-1.5 h-6 rounded-full bg-emerald-500"></span>
@@ -140,7 +160,40 @@
     const photoEmpty = document.getElementById("photoEmpty");
     const videoEmpty = document.getElementById("videoEmpty");
 
-    // Cloudinary の list API からリソースを取得
+    const photoSection = document.getElementById("photoSection");
+    const videoSection = document.getElementById("videoSection");
+    const photoTabBtn = document.getElementById("photoTabBtn");
+    const videoTabBtn = document.getElementById("videoTabBtn");
+
+    // ▼ タブ切り替え
+    function activatePhotoTab() {
+      photoSection.classList.remove("hidden");
+      videoSection.classList.add("hidden");
+
+      photoTabBtn.className =
+        "flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full " +
+        "bg-emerald-600 text-white shadow-sm shadow-emerald-300/60 transition";
+      videoTabBtn.className =
+        "flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full " +
+        "bg-white text-emerald-700 border border-emerald-100 hover:bg-emerald-50 transition";
+    }
+
+    function activateVideoTab() {
+      videoSection.classList.remove("hidden");
+      photoSection.classList.add("hidden");
+
+      videoTabBtn.className =
+        "flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full " +
+        "bg-emerald-600 text-white shadow-sm shadow-emerald-300/60 transition";
+      photoTabBtn.className =
+        "flex-1 text-xs md:text-sm font-semibold px-3 py-2 rounded-full " +
+        "bg-white text-emerald-700 border border-emerald-100 hover:bg-emerald-50 transition";
+    }
+
+    photoTabBtn.addEventListener("click", activatePhotoTab);
+    videoTabBtn.addEventListener("click", activateVideoTab);
+
+    // ▼ Cloudinary の list API からリソース取得
     async function fetchResources(resourceType) {
       const url = `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/list/${TAG}.json`;
       try {
@@ -157,6 +210,18 @@
       }
     }
 
+    // ▼ context から caption / alt を安全に取得（customにも対応）
+    function getContextValue(item, key) {
+      if (!item.context) return "";
+      // 直下の caption / alt
+      if (item.context[key]) return item.context[key];
+      // custom の中にある場合
+      if (item.context.custom && item.context.custom[key]) {
+        return item.context.custom[key];
+      }
+      return "";
+    }
+
     function safeDecode(value) {
       if (!value) return "";
       try {
@@ -170,12 +235,17 @@
       window.open(url, "_blank", "noopener");
     }
 
+    // ▼ 画像カード作成
     function buildImageCard(item) {
-      const url = item.secure_url ||
+      const url =
+        item.secure_url ||
         `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.public_id}.${item.format}`;
 
-      const name = safeDecode(item.context?.caption);
-      const comment = safeDecode(item.context?.alt);
+      const rawCaption = getContextValue(item, "caption");
+      const rawAlt = getContextValue(item, "alt");
+
+      const name = safeDecode(rawCaption);
+      const comment = safeDecode(rawAlt);
 
       const wrapper = document.createElement("article");
       wrapper.className =
@@ -211,8 +281,7 @@
 
       if (comment) {
         const commentEl = document.createElement("p");
-        commentEl.className =
-          "text-[11px] text-slate-500 line-clamp-2";
+        commentEl.className = "text-[11px] text-slate-500";
         commentEl.textContent = comment;
         info.appendChild(commentEl);
       }
@@ -239,12 +308,17 @@
       return wrapper;
     }
 
+    // ▼ 動画カード作成
     function buildVideoCard(item) {
-      const url = item.secure_url ||
+      const url =
+        item.secure_url ||
         `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/${item.public_id}.${item.format}`;
 
-      const name = safeDecode(item.context?.caption);
-      const comment = safeDecode(item.context?.alt);
+      const rawCaption = getContextValue(item, "caption");
+      const rawAlt = getContextValue(item, "alt");
+
+      const name = safeDecode(rawCaption);
+      const comment = safeDecode(rawAlt);
 
       const wrapper = document.createElement("article");
       wrapper.className =
@@ -273,8 +347,7 @@
 
       if (comment) {
         const commentEl = document.createElement("p");
-        commentEl.className =
-          "text-[11px] text-slate-500 line-clamp-2";
+        commentEl.className = "text-[11px] text-slate-500";
         commentEl.textContent = comment;
         info.appendChild(commentEl);
       }
@@ -301,13 +374,14 @@
       return wrapper;
     }
 
+    // ▼ 初期化
     async function initGallery() {
       // 画像リスト
       const images = await fetchResources("image");
       if (!images || images.length === 0) {
         photoEmpty.classList.remove("hidden");
       } else {
-        images.forEach(item => {
+        images.forEach((item) => {
           const card = buildImageCard(item);
           photoGrid.appendChild(card);
         });
@@ -318,11 +392,14 @@
       if (!videos || videos.length === 0) {
         videoEmpty.classList.remove("hidden");
       } else {
-        videos.forEach(item => {
+        videos.forEach((item) => {
           const card = buildVideoCard(item);
           videoGrid.appendChild(card);
         });
       }
+
+      // 初期タブは写真
+      activatePhotoTab();
     }
 
     initGallery();
