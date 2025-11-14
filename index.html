@@ -5,65 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 ギャラリー</title>
 
-  <!-- Tailwind（デザイン用。なくてもOK） -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
 
   <!-- Cloudinary Product Gallery -->
   <link rel="stylesheet" href="https://product-gallery.cloudinary.com/all.css">
   <script src="https://product-gallery.cloudinary.com/all.js"></script>
 
   <style>
-    body {
-      font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    .title-font {
-      font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
-      letter-spacing: 0.08em;
-    }
+    body { font-family: 'Noto Sans JP', sans-serif; }
+    .title-font { font-family: 'Poppins', 'Noto Sans JP', sans-serif; }
   </style>
 </head>
-<body class="bg-gradient-to-b from-gray-50 to-purple-50 min-h-screen px-4 py-6">
 
-  <div class="max-w-5xl mx-auto">
-    <header class="flex items-center justify-between mb-6">
+<body class="bg-gradient-to-b from-white to-purple-50 min-h-screen p-6">
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="title-font text-xl md:text-2xl font-bold text-purple-700">
-          多和楽杯2025 ギャラリー
-        </h1>
-        <p class="text-xs md:text-sm text-gray-500 mt-1">
-          アップロードされた写真・動画が自動でここに並びます。
-        </p>
+        <h1 class="title-font text-3xl font-bold text-purple-700">多和楽杯2025 ギャラリー</h1>
+        <p class="text-gray-500 text-sm">アップロードされた写真・動画が自動で表示されます</p>
       </div>
-
-      <a
-        href="https://tawaracup-2025-photo.netlify.app/"
-        class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
-      >
-        ← アップロード画面に戻る
+      <a href="https://tawaracup-2025-photo.netlify.app/"
+         class="text-purple-700 border border-purple-300 px-4 py-1 rounded-full text-sm hover:bg-purple-100 transition">
+        ← アップロード画面へ戻る
       </a>
-    </header>
+    </div>
 
-    <!-- Cloudinary ギャラリーを描画するコンテナ -->
-    <div id="tawaragallery" class="bg-white rounded-2xl shadow-lg p-3 md:p-4"></div>
+    <!-- ギャラリー本体 -->
+    <div id="gallery-container"
+         class="bg-white rounded-2xl shadow-xl p-4 border border-purple-100"></div>
+
   </div>
 
   <script>
-    // ★ここが一番大事：tag = 「tawarahai2025」
-    // Cloudinary の「Tags」に tawarahai2025 が付いている画像・動画だけを表示します
     const gallery = cloudinary.galleryWidget({
-      cloudName: 'dpef3dzrk',
-      container: '#tawaragallery',
-      mediaAssets: [
-        { tag: 'tawarahai2025' }  // タグ指定のみ（余計なオプションは一旦外す）
-      ]
+      cloudName: "dpef3dzrk",
+      container: "#gallery-container",
+
+      // ★フォルダ指定（画像 + 動画を両方取得）
+      mediaAssets: [{
+        tag: "tawarahai2025"
+      }],
+
+      // ★画像・動画両対応
+      mediaType: "image,video",
+
+      // ★デザイン設定
+      aspectRatio: "16:9",
+      carouselStyle: "thumbnails",
+      carouselLocation: "bottom",
+      zoom: true,
+
+      themeProps: {
+        primary: "#7c3aed",
+        active: "#5b21b6",
+        lightboxBackground: "rgba(0,0,0,0.9)",
+        galleryBackground: "#ffffff"
+      },
+
+      // ★アクション追加：ダウンロード可
+      transformation: { quality: "auto", fetch_format: "auto" },
+      imageActions: ["download"],
+      videoActions: ["download"],
+
     });
 
     gallery.render();
   </script>
+
 </body>
 </html>
