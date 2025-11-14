@@ -58,8 +58,9 @@
       <div>
         <div class="font-semibold text-purple-700 mb-0.5">写真・動画の保存方法</div>
         <p>
-          スマホ：保存したい写真や動画を<strong>タップ → 画面が開いた状態で長押し</strong>し、「写真に追加」「ビデオを保存」などを選択<br>
-          PC：サムネイルをクリック → 画像/動画が開いたら右クリックして「名前を付けて保存」
+          スマホ：フルスクリーンで表示された写真・動画を
+          <strong>長押し</strong>して「写真に追加」「ビデオを保存」などを選択<br>
+          PC：画像・動画を開いた状態で右クリック → 「名前を付けて保存」
         </p>
       </div>
     </div>
@@ -68,7 +69,7 @@
     <div class="mb-4 flex gap-2">
       <button
         id="tab-images"
-        class="flex-1 text-sm md:text-base rounded-full px-4 py-2 font-medium bg-purple-600 text-white shadow-md hover:bg-purple-700 transition"
+        class="flex-1 text-sm md:text-base rounded-full px-4 py-2 font-medium bg-purple-600 text-white shadow-md hover:bg-purple-700 transition border border-transparent"
         data-type="image"
       >
         📷 写真
@@ -96,7 +97,7 @@
         id="grid"
         class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 fade-in"
       >
-        <!-- ここに JS でカードを追加 -->
+        <!-- JS でカードを追加 -->
       </div>
     </section>
 
@@ -104,6 +105,26 @@
     <footer class="mt-6 text-center text-[11px] text-gray-400">
       © 2025 多和楽杯コンペ実行委員会
     </footer>
+  </div>
+
+  <!-- フルスクリーン表示用ライトボックス -->
+  <div
+    id="lightbox"
+    class="fixed inset-0 bg-black/70 flex items-center justify-center z-40 px-3 py-8 hidden"
+  >
+    <div class="relative max-w-3xl w-full max-h-full flex items-center justify-center">
+      <!-- 閉じるボタン -->
+      <button
+        id="lightbox-close"
+        class="absolute -top-8 right-0 text-white/80 hover:text-white text-2xl"
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+
+      <!-- 中身 -->
+      <div id="lightbox-content" class="w-full max-h-[80vh] flex items-center justify-center"></div>
+    </div>
   </div>
 
   <script>
@@ -116,48 +137,65 @@
     const emptyEl = document.getElementById("empty");
     const gridEl = document.getElementById("grid");
 
+    const lightbox = document.getElementById("lightbox");
+    const lightboxContent = document.getElementById("lightbox-content");
+    const lightboxClose = document.getElementById("lightbox-close");
+
     let cache = {
       image: null,
       video: null,
     };
 
     function setActiveTab(type) {
-      const activeClasses = "bg-purple-600 text-white shadow-md border-transparent";
-      const inactiveClasses = "bg-white text-purple-700 border border-purple-200 shadow-none";
+      const activeClasses = ["bg-purple-600","text-white","shadow-md","border-transparent"];
+      const inactiveClasses = ["bg-white","text-purple-700","border","border-purple-200","shadow-none"];
 
       if (type === "image") {
-        tabImages.className = tabImages.className
-          .replace(inactiveClasses, "")
-          .replace("  ", " ")
-          .trim();
-        tabVideos.className = tabVideos.className
-          .replace(activeClasses, "")
-          .replace("  ", " ")
-          .trim();
-
-        tabImages.classList.add(...activeClasses.split(" "));
-        tabVideos.classList.add(...inactiveClasses.split(" "));
+        tabImages.classList.remove(...inactiveClasses);
+        tabVideos.classList.remove(...activeClasses);
+        tabImages.classList.add(...activeClasses);
+        tabVideos.classList.add(...inactiveClasses);
       } else {
-        tabVideos.className = tabVideos.className
-          .replace(inactiveClasses, "")
-          .replace("  ", " ")
-          .trim();
-        tabImages.className = tabImages.className
-          .replace(activeClasses, "")
-          .replace("  ", " ")
-          .trim();
-
-        tabVideos.classList.add(...activeClasses.split(" "));
-        tabImages.classList.add(...inactiveClasses.split(" "));
+        tabVideos.classList.remove(...inactiveClasses);
+        tabImages.classList.remove(...activeClasses);
+        tabVideos.classList.add(...activeClasses);
+        tabImages.classList.add(...inactiveClasses);
       }
     }
+
+    function openLightboxForImage(url, alt) {
+      lightboxContent.innerHTML = `
+        <img src="${url}" alt="${alt || ''}"
+          class="max-h-[80vh] w-auto rounded-2xl shadow-2xl object-contain bg-black" />
+      `;
+      lightbox.classList.remove("hidden");
+    }
+
+    function openLightboxForVideo(url) {
+      lightboxContent.innerHTML = `
+        <video src="${url}" controls autoplay playsinline
+          class="max-h-[80vh] w-auto rounded-2xl shadow-2xl bg-black object-contain"></video>
+      `;
+      lightbox.classList.remove("hidden");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.add("hidden");
+      lightboxContent.innerHTML = "";
+    }
+
+    lightboxClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (e) => {
+      // 黒背景タップで閉じる（中身のクリックは無視）
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
 
     function createImageCard(resource) {
       const publicId = resource.public_id;
       const format = resource.format;
       const secureUrl = resource.secure_url;
-
-      // サムネイル（正方形・軽量）
       const thumbUrl =
         "https://res.cloudinary.com/" +
         CLOUD_NAME +
@@ -165,20 +203,21 @@
         publicId +
         "." +
         format;
-
       const fileName = publicId.split("/").pop();
 
       const card = document.createElement("div");
-      card.className = "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition";
+      card.className =
+        "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition cursor-pointer";
+      card.dataset.type = "image";
+      card.dataset.url = secureUrl;
+      card.dataset.alt = fileName;
 
       card.innerHTML = `
-        <a href="${secureUrl}" target="_blank" rel="noopener noreferrer" class="block">
-          <img
-            src="${thumbUrl}"
-            alt="${fileName}"
-            class="w-full h-40 md:h-44 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </a>
+        <img
+          src="${thumbUrl}"
+          alt="${fileName}"
+          class="w-full h-40 md:h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+        />
         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-[10px] text-white px-2 py-1 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition">
           <span class="truncate">📷 ${fileName}</span>
           <a
@@ -190,6 +229,15 @@
           </a>
         </div>
       `;
+
+      // 保存ボタンのクリックはカードのクリックと分離
+      const dl = card.querySelector("a");
+      dl.addEventListener("click", (e) => e.stopPropagation());
+
+      card.addEventListener("click", () => {
+        openLightboxForImage(secureUrl, fileName);
+      });
+
       return card;
     }
 
@@ -199,7 +247,6 @@
       const secureUrl = resource.secure_url;
       const fileName = publicId.split("/").pop();
 
-      // ポスター用サムネイル（先頭1秒を切り出し）
       const posterUrl =
         "https://res.cloudinary.com/" +
         CLOUD_NAME +
@@ -209,18 +256,24 @@
         format;
 
       const card = document.createElement("div");
-      card.className = "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition";
+      card.className =
+        "relative group overflow-hidden rounded-2xl bg-gray-50 shadow-sm hover:shadow-md transition cursor-pointer";
+      card.dataset.type = "video";
+      card.dataset.url = secureUrl;
 
       card.innerHTML = `
-        <a href="${secureUrl}" target="_blank" rel="noopener noreferrer" class="block">
-          <video
-            src="${secureUrl}"
-            poster="${posterUrl}"
+        <div class="relative">
+          <img
+            src="${posterUrl}"
+            alt="${fileName}"
             class="w-full h-40 md:h-44 object-cover"
-            playsinline
-            controls
-          ></video>
-        </a>
+          />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 flex items-center justify-center">
+              <div class="w-0 h-0 border-t-6 border-b-6 border-l-8 md:border-t-8 md:border-b-8 md:border-l-12 border-t-transparent border-b-transparent border-l-white ml-1"></div>
+            </div>
+          </div>
+        </div>
         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-[10px] text-white px-2 py-1 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition">
           <span class="truncate">🎥 ${fileName}</span>
           <a
@@ -232,6 +285,14 @@
           </a>
         </div>
       `;
+
+      const dl = card.querySelector("a");
+      dl.addEventListener("click", (e) => e.stopPropagation());
+
+      card.addEventListener("click", () => {
+        openLightboxForVideo(secureUrl);
+      });
+
       return card;
     }
 
@@ -243,14 +304,11 @@
       gridEl.innerHTML = "";
 
       try {
-        // すでに取得済みならキャッシュから
         let resources = cache[type];
         if (!resources) {
           const url = `https://res.cloudinary.com/${CLOUD_NAME}/${type}/list/${TAG}.json`;
           const res = await fetch(url);
-          if (!res.ok) {
-            throw new Error("failed to fetch");
-          }
+          if (!res.ok) throw new Error("failed to fetch");
           const data = await res.json();
           resources = data.resources || [];
           cache[type] = resources;
@@ -264,9 +322,9 @@
           return;
         }
 
-        // カードを並べる
         resources.forEach((r) => {
-          const card = type === "image" ? createImageCard(r) : createVideoCard(r);
+          const card =
+            type === "image" ? createImageCard(r) : createVideoCard(r);
           gridEl.appendChild(card);
         });
 
@@ -274,15 +332,15 @@
         gridEl.classList.remove("hidden");
       } catch (e) {
         console.error(e);
-        loadingEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
+        loadingEl.textContent =
+          "読み込みに失敗しました。時間をおいて再度お試しください。";
       }
     }
 
-    // タブのクリックイベント
     tabImages.addEventListener("click", () => loadMedia("image"));
     tabVideos.addEventListener("click", () => loadMedia("video"));
 
-    // 初期表示は「写真」タブ
+    // 初期表示は写真タブ
     loadMedia("image");
   </script>
 </body>
