@@ -81,15 +81,14 @@
       cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
 
-      // ★ ここをシンプルに tag 1つだけに戻す
+      // 画像・動画に付けているタグを指定（両方とも tawarahai2025 を付ける）
       mediaAssets: [
         { tag: 'tawarahai2025' }
       ],
 
       aspectRatio: "16:9",
       zoom: true,
-      carouselLocation: "bottom",
-      navigation: "thumbnails",
+      carouselLocation: "bottom",  // 下にサムネイル
       themeProps: {
         primary: "#7c3aed",
         active: "#4c1d95",
@@ -97,6 +96,7 @@
         background: "#ffffff",
         thumbnailHoverBorder: "#a855f7"
       }
+      // navigation オプションは削除（これが原因でエラーになっていました）
     });
 
     gallery.render();
