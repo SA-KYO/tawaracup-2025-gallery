@@ -30,7 +30,7 @@
 <body class="bg-gradient-to-b from-gray-50 to-purple-50 min-h-screen px-4 py-6">
 
   <div class="max-w-5xl mx-auto">
-    <header class="flex items-center justify-between mb-6">
+    <header class="flex items-center justify-between mb-6 relative z-10">
       <div>
         <h1 class="title-font text-xl md:text-2xl font-bold text-purple-700">
           多和楽杯2025 ギャラリー
@@ -40,7 +40,7 @@
         </p>
       </div>
       <a
-        href="index.html"
+        href="./index.html"
         class="text-xs md:text-sm text-purple-700 border border-purple-300 rounded-full px-3 py-1 hover:bg-purple-50 transition"
       >
         ← アップロード画面に戻る
@@ -52,12 +52,12 @@
   </div>
 
   <script>
-    // Cloudinary Product Gallery（タグ tawarahai2025 を表示）
+    // Cloudinary Product Gallery（フォルダ tawarahai-2025 を表示）
     const gallery = cloudinary.galleryWidget({
       cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
       mediaAssets: [
-        { tag: 'tawarahai2025' }  // アップロード時に付けたタグ
+        { folder: 'tawarahai-2025' }   // ★ここを folder 指定に変更
       ],
       aspectRatio: "16:9",
       zoom: true,
