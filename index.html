@@ -130,34 +130,52 @@
       }
     }
 
-    /* -------------------------
-            動画一覧を読み込み
-    -------------------------- */
-    async function loadVideos() {
-      const url = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${FOLDER}.json`;
+ /* -------------------------
+        動画一覧を読み込み
+-------------------------- */
+async function loadVideos() {
+  const url = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${FOLDER}.json`;
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
+  try {
+    const res = await fetch(url);
 
-        const list = document.getElementById("videoList");
-        list.innerHTML = "";
-
-        data.resources.forEach(asset => {
-          const html = `
-            <video controls class="rounded-xl shadow w-full">
-              <source src="${asset.secure_url}" type="video/mp4">
-            </video>
-          `;
-          list.insertAdjacentHTML("beforeend", html);
-        });
-
-      } catch (e) {
-        console.log("動画読み込みエラー:", e);
-        document.getElementById("videoList").innerHTML = `
-          <p class="text-gray-500">動画がありません。</p>`;
-      }
+    // フォルダ自体が存在しない場合は 404 → 動画なし扱い
+    if (!res.ok) {
+      document.getElementById("videoList").innerHTML =
+        `<p class="text-gray-500">動画がありません。</p>`;
+      return;
     }
+
+    const data = await res.json();
+
+    const list = document.getElementById("videoList");
+    list.innerHTML = "";
+
+    // ★ 動画が 1 件も無い場合
+    if (!data.resources || data.resources.length === 0) {
+      list.innerHTML =
+        `<p class="text-gray-500">動画がありません。</p>`;
+      return;
+    }
+
+    // ★ 通常：動画がある場合のみ表示
+    data.resources.forEach(asset => {
+      const html = `
+        <video controls class="rounded-xl shadow w-full">
+          <source src="${asset.secure_url}" type="video/mp4">
+        </video>
+      `;
+      list.insertAdjacentHTML("beforeend", html);
+    });
+
+  } catch (e) {
+    console.log("動画読み込みエラー:", e);
+
+    // ★ ネットワークや API エラー時だけ赤で表示
+    document.getElementById("videoList").innerHTML = `
+      <p class="text-red-500">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+  }
+}
 
     /* -------------------------
              タブ切り替え
