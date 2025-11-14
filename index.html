@@ -5,220 +5,305 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 ギャラリー</title>
 
-  <!-- Tailwind -->
+  <!-- TailwindCSS CDN（本番でもこのままでOK） -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Google Fonts -->
+  <!-- 日本語＋英字フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
     body {
-      font-family: 'Noto Sans JP', system-ui, sans-serif;
+      font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     .title-font {
-      font-family: 'Poppins', 'Noto Sans JP', sans-serif;
-      letter-spacing: 0.06em;
+      font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
+      letter-spacing: 0.08em;
     }
   </style>
 </head>
+<body class="bg-gradient-to-b from-purple-50 via-white to-purple-50 min-h-screen px-4 py-6">
 
-<body class="bg-gradient-to-b from-purple-50 to-white min-h-screen pb-24">
+  <main class="max-w-4xl mx-auto">
+    <!-- ヘッダー -->
+    <header class="mb-6">
+      <p class="text-xs text-purple-400 font-medium mb-1 tracking-wide">
+        TAWARA CUP 2025
+      </p>
+      <h1 class="title-font text-2xl md:text-3xl font-bold text-purple-700 mb-2">
+        多和楽杯2025 ギャラリー
+      </h1>
+      <p class="text-xs md:text-sm text-gray-600 leading-relaxed">
+        コンペ当日にみんながアップしてくれた写真・動画が、自動でここに並びます。
+      </p>
+    </header>
 
-  <!-- ヘッダー -->
-  <header class="px-5 pt-6 pb-3">
-    <h1 class="text-xl md:text-2xl font-bold text-purple-800 title-font">
-      多和楽杯2025 ギャラリー
-    </h1>
-    <p class="text-sm text-gray-600 mt-1">
-      コンペ当日にみんながアップしてくれた写真・動画が、自動でここに並びます。
-    </p>
-
-    <a href="https://tawaracup-2025-photo.netlify.app/"
-       class="inline-block mt-4 text-sm text-purple-700 border border-purple-300 rounded-full px-4 py-1.5 hover:bg-purple-50 transition">
-      ← アップロード画面に戻る
-    </a>
-  </header>
-
-  <!-- 写真・動画タブ -->
-  <div class="px-5 mt-4 grid grid-cols-2 gap-3">
-    <button id="tabPhoto"
-      class="py-2 rounded-full font-semibold bg-purple-600 text-white shadow">
-      📸 写真
-    </button>
-
-    <button id="tabVideo"
-      class="py-2 rounded-full font-semibold bg-white text-purple-700 border border-purple-300">
-      🎥 動画
-    </button>
-  </div>
-
-  <!-- 写真一覧 -->
-  <section id="photoSection" class="px-5 mt-6">
-    <h2 class="text-lg md:text-xl font-bold text-purple-800 flex items-center gap-2 mb-2">
-      📸 写真一覧
-    </h2>
-
-    <!-- ★ 追加：注意書き -->
-    <p class="text-xs text-gray-500 mb-3 leading-5">
-      ※「↓ 開いて保存」をタップ → 開いた画面を長押し →「写真に保存」を選んでください。
-    </p>
-
-    <div id="photoList"
-         class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    <!-- アップロード画面へ戻る -->
+    <div class="mb-5">
+      <a
+        href="https://tawaracup-2025-photo.netlify.app/"
+        class="inline-flex items-center gap-1 text-xs md:text-sm px-4 py-2 rounded-full border border-purple-200 bg-white text-purple-700 shadow-sm hover:bg-purple-50 transition"
+      >
+        ← アップロード画面に戻る
+      </a>
     </div>
-  </section>
 
-  <!-- 動画一覧 -->
-  <section id="videoSection" class="px-5 mt-6 hidden">
-    <h2 class="text-lg md:text-xl font-bold text-purple-800 flex items-center gap-2 mb-3">
-      🎥 動画一覧
-    </h2>
-
-    <div id="videoList"
-         class="grid grid-cols-1 gap-6">
+    <!-- タブ切り替え -->
+    <div class="flex mb-4 gap-2">
+      <button
+        id="tab-photo"
+        class="flex-1 flex items-center justify-center gap-2 text-sm md:text-base font-semibold rounded-full py-2.5 bg-purple-600 text-white shadow"
+        onclick="showTab('photo')"
+      >
+        <span>📷</span>
+        <span>写真</span>
+      </button>
+      <button
+        id="tab-video"
+        class="flex-1 flex items-center justify-center gap-2 text-sm md:text-base font-semibold rounded-full py-2.5 bg-white text-purple-700 border border-purple-200"
+        onclick="showTab('video')"
+      >
+        <span>🎥</span>
+        <span>動画</span>
+      </button>
     </div>
-  </section>
 
-  <!-- Cloudinary API JavaScript -->
+    <!-- 使い方説明 -->
+    <section class="mb-6 bg-white rounded-2xl shadow-sm px-4 py-4 md:px-6 md:py-5">
+      <h2 class="text-sm md:text-base font-semibold text-purple-700 mb-2">
+        ✅ 写真・動画の保存方法
+      </h2>
+      <p class="text-xs md:text-sm text-gray-700 leading-relaxed">
+        スマホ：
+        <span class="font-semibold text-purple-700">「↓ 開いて保存」</span>
+        ボタンをタップ → 画像・動画が開いた画面を
+        <span class="font-semibold">長押し</span> して
+        「写真に保存」／「ビデオを保存」などを選択してください。<br>
+        PC：サムネイルをクリックして開いた画面で右クリック →
+        「名前を付けて保存」でダウンロードできます。
+      </p>
+    </section>
+
+    <!-- 写真セクション -->
+    <section id="photoSection" class="mb-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-lg">📸</span>
+        <h2 class="text-base md:text-lg font-semibold text-purple-700">
+          写真一覧
+        </h2>
+      </div>
+      <p class="text-xs text-gray-500 mb-3">
+        気に入った写真をタップ → 「↓ 開いて保存」で開いた画面を長押しして保存できます。
+      </p>
+
+      <div id="photoList" class="min-h-[120px]">
+        <p class="text-sm text-gray-400">写真を読み込み中です…</p>
+      </div>
+    </section>
+
+    <!-- 動画セクション -->
+    <section id="videoSection" class="mb-10 hidden">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-lg">🎬</span>
+        <h2 class="text-base md:text-lg font-semibold text-purple-700">
+          動画一覧
+        </h2>
+      </div>
+      <p class="text-xs text-gray-500 mb-3">
+        動画サムネイル下の
+        <span class="font-semibold text-purple-700">「↓ 開いて保存」</span>
+        ボタンをタップ → 開いた画面を長押しして「ビデオを保存」を選んでください。
+      </p>
+
+      <div id="videoList" class="min-h-[120px]">
+        <p class="text-sm text-gray-400">動画を読み込み中です…</p>
+      </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="mt-8 text-center text-[11px] text-gray-400">
+      © 2025 多和楽杯コンペ実行委員会
+    </footer>
+  </main>
+
+  <!-- ==============================
+       Cloudinary 読み込み & 表示ロジック
+       ============================== -->
   <script>
+    // --------- Cloudinary 設定 ---------
     const CLOUD_NAME = "dpef3dzrk";
-    const FOLDER = "tawarahai-2025";
 
-  /* -------------------------
-        写真一覧を読み込み
--------------------------- */
-async function loadPhotos() {
-  const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
+    // ★フォルダ名ではなく「タグ名」を指定
+    const PHOTO_TAG = "tawarahai2025";        // 写真に付けているタグ
+    const VIDEO_TAG = "tawarahai2025-video";  // 動画に付けているタグ
 
-  try {
-    const res = await fetch(url);
+    // --------- タブ切り替え ---------
+    function showTab(type) {
+      const photoBtn = document.getElementById("tab-photo");
+      const videoBtn = document.getElementById("tab-video");
+      const photoBox = document.getElementById("photoSection");
+      const videoBox = document.getElementById("videoSection");
 
-    const list = document.getElementById("photoList");
-    list.innerHTML = "";
+      if (type === "photo") {
+        photoBtn.classList.add("bg-purple-600", "text-white", "shadow");
+        photoBtn.classList.remove("bg-white", "text-purple-700", "border", "border-purple-200");
 
-    // フォルダ（タグ）自体が存在しない or 404 → 写真なし扱い
-    if (!res.ok) {
-      list.innerHTML = `<p class="text-gray-500">写真がありません。</p>`;
-      return;
+        videoBtn.classList.remove("bg-purple-600", "text-white", "shadow");
+        videoBtn.classList.add("bg-white", "text-purple-700", "border", "border-purple-200");
+
+        photoBox.classList.remove("hidden");
+        videoBox.classList.add("hidden");
+      } else {
+        videoBtn.classList.add("bg-purple-600", "text-white", "shadow");
+        videoBtn.classList.remove("bg-white", "text-purple-700", "border", "border-purple-200");
+
+        photoBtn.classList.remove("bg-purple-600", "text-white", "shadow");
+        photoBtn.classList.add("bg-white", "text-purple-700", "border", "border-purple-200");
+
+        videoBox.classList.remove("hidden");
+        photoBox.classList.add("hidden");
+      }
     }
 
-    const data = await res.json();
+    // --------- 写真一覧を読み込む ---------
+    async function loadPhotos() {
+      const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${PHOTO_TAG}.json`;
+      const list = document.getElementById("photoList");
+      list.innerHTML = `<p class="text-sm text-gray-400">写真を読み込み中です…</p>`;
 
-    // 写真が 1 枚もない場合
-    if (!data.resources || data.resources.length === 0) {
-      list.innerHTML = `<p class="text-gray-500">写真がありません。</p>`;
-      return;
+      try {
+        const res = await fetch(url);
+
+        // タグ自体がない／まだ一枚もアップされていない
+        if (!res.ok) {
+          if (res.status === 404) {
+            list.innerHTML = `<p class="text-gray-500 text-sm">写真がありません。</p>`;
+          } else {
+            list.innerHTML = `<p class="text-red-500 text-sm">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+          }
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.resources || data.resources.length === 0) {
+          list.innerHTML = `<p class="text-gray-500 text-sm">写真がありません。</p>`;
+          return;
+        }
+
+        // グリッドを描画（スマホ2列 / 大きめ画面3列）
+        list.innerHTML = `
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4"></div>
+        `;
+        const grid = list.querySelector("div.grid");
+
+        data.resources.forEach(asset => {
+          const html = `
+            <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+              <button
+                class="block flex-1"
+                onclick="openPhoto('${asset.secure_url}')"
+              >
+                <img
+                  src="${asset.secure_url}"
+                  alt=""
+                  class="w-full h-40 md:h-44 object-cover"
+                  loading="lazy"
+                />
+              </button>
+              <button
+                class="w-full text-[11px] md:text-xs text-purple-600 font-semibold py-2 border-t border-purple-50 hover:bg-purple-50"
+                onclick="openPhoto('${asset.secure_url}')"
+              >
+                ↓ 開いて保存
+              </button>
+            </div>
+          `;
+          grid.insertAdjacentHTML("beforeend", html);
+        });
+
+      } catch (error) {
+        console.error("写真読み込みエラー:", error);
+        list.innerHTML = `<p class="text-red-500 text-sm">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+      }
     }
 
-    // 通常：写真一覧を 2 列グリッドで表示
-    data.resources.forEach(asset => {
-      const html = `
-        <button
-          class="group block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
-          onclick="openPhoto('${asset.secure_url}')"
-        >
-          <img
-            src="${asset.secure_url}"
-            alt=""
-            class="w-full h-56 object-cover"
-          />
-          <div class="px-4 py-3 border-t border-purple-50 text-right">
-            <span class="inline-flex items-center text-xs text-purple-600 font-medium">
-              ↓ 開いて保存
-            </span>
-          </div>
-        </button>
-      `;
-      list.insertAdjacentHTML("beforeend", html);
-    });
+    // --------- 動画一覧を読み込む ---------
+    async function loadVideos() {
+      const url = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${VIDEO_TAG}.json`;
+      const list = document.getElementById("videoList");
+      list.innerHTML = `<p class="text-sm text-gray-400">動画を読み込み中です…</p>`;
 
-  } catch (e) {
-    console.error("写真読み込みエラー:", e);
-    document.getElementById("photoList").innerHTML = `
-      <p class="text-red-500">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
-  }
-}
+      try {
+        const res = await fetch(url);
 
-/* -------------------------
-        動画一覧を読み込み
--------------------------- */
-async function loadVideos() {
-  const url = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${FOLDER}.json`;
+        if (!res.ok) {
+          if (res.status === 404) {
+            list.innerHTML = `<p class="text-gray-500 text-sm">動画がありません。</p>`;
+          } else {
+            list.innerHTML = `<p class="text-red-500 text-sm">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+          }
+          return;
+        }
 
-  try {
-    const res = await fetch(url);
+        const data = await res.json();
 
-    const list = document.getElementById("videoList");
-    list.innerHTML = "";
+        if (!data.resources || data.resources.length === 0) {
+          list.innerHTML = `<p class="text-gray-500 text-sm">動画がありません。</p>`;
+          return;
+        }
 
-    // フォルダ自体が存在しない場合は 404 → 動画なし扱い
-    if (!res.ok) {
-      list.innerHTML = `<p class="text-gray-500">動画がありません。</p>`;
-      return;
+        list.innerHTML = `
+          <div class="space-y-4 md:space-y-5"></div>
+        `;
+        const container = list.querySelector("div.space-y-4, div.space-y-5");
+
+        data.resources.forEach(asset => {
+          const html = `
+            <div class="bg-white rounded-2xl shadow-sm p-3 md:p-4">
+              <div class="rounded-xl overflow-hidden bg-black">
+                <video
+                  controls
+                  class="w-full max-h-64 md:max-h-80 bg-black"
+                  preload="metadata"
+                >
+                  <source src="${asset.secure_url}" type="video/mp4">
+                </video>
+              </div>
+              <div class="mt-2 text-right">
+                <button
+                  class="text-[11px] md:text-xs text-purple-600 font-semibold hover:text-purple-700"
+                  onclick="openVideo('${asset.secure_url}')"
+                >
+                  ↓ 開いて保存
+                </button>
+              </div>
+            </div>
+          `;
+          container.insertAdjacentHTML("beforeend", html);
+        });
+
+      } catch (error) {
+        console.error("動画読み込みエラー:", error);
+        list.innerHTML = `<p class="text-red-500 text-sm">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+      }
     }
 
-    const data = await res.json();
-
-    // 動画が 1 件も無い場合
-    if (!data.resources || data.resources.length === 0) {
-      list.innerHTML = `<p class="text-gray-500">動画がありません。</p>`;
-      return;
+    // --------- 別タブで開く（iOS Safari ならビューア→長押し保存） ---------
+    function openPhoto(url) {
+      window.open(url, "_blank");
     }
 
-    // 通常：動画がある場合のみ表示
-    data.resources.forEach(asset => {
-      const html = `
-        <div class="bg-white rounded-2xl shadow p-3">
-          <video controls class="rounded-xl w-full">
-            <source src="${asset.secure_url}" type="video/mp4">
-          </video>
-          <div class="mt-2 text-right">
-            <button
-              class="text-xs text-purple-600 font-medium"
-              onclick="openVideo('${asset.secure_url}')"
-            >
-              ↓ 開いて保存
-            </button>
-          </div>
-        </div>
-      `;
-      list.insertAdjacentHTML("beforeend", html);
+    function openVideo(url) {
+      window.open(url, "_blank");
+    }
+
+    // 初期ロード
+    document.addEventListener("DOMContentLoaded", () => {
+      loadPhotos();
+      loadVideos();
     });
-
-  } catch (e) {
-    console.error("動画読み込みエラー:", e);
-    document.getElementById("videoList").innerHTML = `
-      <p class="text-red-500">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
-  }
-}
-
-    /* -------------------------
-             タブ切り替え
-    -------------------------- */
-    document.getElementById("tabPhoto").addEventListener("click", () => {
-      photoSection.classList.remove("hidden");
-      videoSection.classList.add("hidden");
-
-      tabPhoto.classList.add("bg-purple-600", "text-white");
-      tabVideo.classList.remove("bg-purple-600", "text-white");
-    });
-
-    document.getElementById("tabVideo").addEventListener("click", () => {
-      videoSection.classList.remove("hidden");
-      photoSection.classList.add("hidden");
-
-      tabVideo.classList.add("bg-purple-600", "text-white");
-      tabPhoto.classList.remove("bg-purple-600", "text-white");
-    });
-
-    /* -------------------------
-            初期ロード
-    -------------------------- */
-    loadPhotos();
-    loadVideos();
   </script>
-
 </body>
 </html>
