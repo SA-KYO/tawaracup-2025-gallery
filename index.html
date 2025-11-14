@@ -21,8 +21,6 @@
       font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
       letter-spacing: 0.08em;
     }
-
-    /* ライトボックス用 */
     #lightbox-backdrop {
       backdrop-filter: blur(8px);
     }
@@ -57,7 +55,7 @@
       ← アップロード画面に戻る
     </a>
 
-    <!-- 保存のコツ -->
+    <!-- 保存のコツ（スマホ前提） -->
     <section class="mb-5 md:mb-6">
       <div class="bg-white/80 border border-purple-100 rounded-2xl shadow-sm px-4 py-3 md:px-6 md:py-4 flex flex-col gap-1">
         <div class="flex items-center gap-2 text-purple-700 font-semibold text-sm">
@@ -66,8 +64,7 @@
         </div>
         <p class="text-[11px] md:text-xs text-gray-600 leading-relaxed">
           スマホ：<span class="font-semibold">サムネイルをタップ → 画像・動画が全画面で開いた状態で長押し</span>し、「写真に追加」「ビデオを保存」などを選択してください。<br>
-          PC：サムネイルをクリック → 画像・動画が開いたら右クリックして「名前を付けて保存」。<br>
-          「⬇︎ 保存」ボタンは <span class="font-semibold">ファイルとしてダウンロード</span> したい方向けです（iPhone では「ファイル」アプリに保存されます）。
+          「⬇︎ 保存」ボタンを押すと、元の画像・動画ページが開きます。そこで長押し → 保存でもOKです。
         </p>
       </div>
     </section>
@@ -164,7 +161,7 @@
 
     let currentType = 'image'; // 'image' or 'video'
 
-    // Cloudinary リスト API から取得
+    // Cloudinary リスト API
     async function fetchMediaList(type) {
       const tag = type === 'image' ? IMAGE_TAG : VIDEO_TAG;
       const kind = type === 'image' ? 'image' : 'video';
@@ -232,13 +229,9 @@
         const isImage = type === 'image';
         const baseKind = isImage ? 'image' : 'video';
 
-        // フル表示用 URL
+        // フル表示用 URL（＝スマホで長押し保存に使うURL）
         const originalUrl =
           `https://res.cloudinary.com/${CLOUD_NAME}/${baseKind}/upload/${item.public_id}.${item.format}`;
-
-        // ダウンロード用 URL（ファイルとして保存したい人向け）
-        const downloadUrl =
-          `https://res.cloudinary.com/${CLOUD_NAME}/${baseKind}/upload/fl_attachment/${item.public_id}.${item.format}`;
 
         // サムネイル用 URL
         let thumbUrl;
@@ -246,7 +239,6 @@
           thumbUrl =
             `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/c_fill,w_800,h_1000,q_auto,f_auto/${item.public_id}.${item.format}`;
         } else {
-          // 動画は3秒目のフレームをサムネイルに
           thumbUrl =
             `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_3,c_fill,w_800,h_1000,q_auto,f_auto/${item.public_id}.jpg`;
         }
@@ -255,7 +247,7 @@
         card.className =
           'relative bg-white rounded-2xl shadow-md overflow-hidden ring-1 ring-purple-50';
 
-        // クリックでライトボックス
+        // カードタップ → ライトボックスで拡大表示
         card.addEventListener('click', () => {
           openLightbox(originalUrl, type);
         });
@@ -278,8 +270,9 @@
 
         const saveButton = card.querySelector('button');
         saveButton.addEventListener('click', (e) => {
-          e.stopPropagation(); // カードのクリック（ライトボックス）をキャンセル
-          window.open(downloadUrl, '_blank');
+          e.stopPropagation(); // ライトボックス表示はさせない
+          // ★ PCダウンロード用の特殊URLは使わず、元ファイルのページを開くだけ
+          window.open(originalUrl, '_blank');
         });
 
         mediaGrid.appendChild(card);
@@ -289,7 +282,7 @@
     async function loadMedia(type) {
       currentType = type;
 
-      // タブの見た目
+      // タブ見た目
       if (type === 'image') {
         tabImages.className =
           'flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-full text-xs md:text-sm font-semibold text-purple-700 bg-purple-100 shadow-sm';
