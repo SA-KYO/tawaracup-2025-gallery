@@ -8,7 +8,7 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント（見出しは少しキアロっぽい雰囲気の英字＋日本語） -->
+  <!-- フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -78,22 +78,18 @@
   <script>
     // Cloudinary Product Gallery 設定
     const gallery = cloudinary.galleryWidget({
-      cloudName: 'dpef3dzrk',          // ← そのままでOK
+      cloudName: 'dpef3dzrk',
       container: '#tawaragallery',
 
-      // 画像と動画を両方表示（アップロード時に付けているタグと合わせる）
+      // ★ ここをシンプルに tag 1つだけに戻す
       mediaAssets: [
-        { tag: 'tawarahai2025', mediaType: 'image' },
-        { tag: 'tawarahai2025', mediaType: 'video' }
+        { tag: 'tawarahai2025' }
       ],
 
-      // 表示まわり
       aspectRatio: "16:9",
       zoom: true,
       carouselLocation: "bottom",
-      navigation: "thumbnails",    // 下にサムネイルを並べる
-
-      // テーマカラー（多和楽カラー寄りの紫）
+      navigation: "thumbnails",
       themeProps: {
         primary: "#7c3aed",
         active: "#4c1d95",
