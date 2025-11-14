@@ -86,51 +86,62 @@
     const CLOUD_NAME = "dpef3dzrk";
     const FOLDER = "tawarahai-2025";
 
-    /* -------------------------
-          写真一覧を読み込み
-    -------------------------- */
-    async function loadPhotos() {
-      const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
+  /* -------------------------
+        写真一覧を読み込み
+-------------------------- */
+async function loadPhotos() {
+  const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
+  try {
+    const res = await fetch(url);
 
-        const list = document.getElementById("photoList");
-        list.innerHTML = "";
+    const list = document.getElementById("photoList");
+    list.innerHTML = "";
 
-        data.resources.forEach(asset => {
-          const html = `
-            <div class="bg-white rounded-xl shadow p-2 overflow-hidden">
-              <img src="${asset.secure_url}" class="w-full rounded-md" />
-
-              <!-- ★ 保存ボタンを改名（↓ 開いて保存） -->
-              <button
-                class="mt-2 w-full text-xs md:text-sm text-purple-700 font-semibold border border-purple-200 rounded-full py-1 bg-purple-50 hover:bg-purple-100 transition save-btn"
-                data-url="${asset.secure_url}">
-                ↓ 開いて保存
-              </button>
-            </div>
-          `;
-          list.insertAdjacentHTML("beforeend", html);
-        });
-
-        // 保存ボタンの動作：新しいタブで画像を開くだけ
-        document.querySelectorAll(".save-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const url = btn.dataset.url;
-            window.open(url, "_blank");
-          });
-        });
-
-      } catch (e) {
-        console.log("写真読み込みエラー:", e);
-        document.getElementById("photoList").innerHTML = `
-          <p class="text-gray-500">読み込みに失敗しました。再度お試しください。</p>`;
-      }
+    // フォルダ（タグ）自体が存在しない or 404 → 写真なし扱い
+    if (!res.ok) {
+      list.innerHTML = `<p class="text-gray-500">写真がありません。</p>`;
+      return;
     }
 
- /* -------------------------
+    const data = await res.json();
+
+    // 写真が 1 枚もない場合
+    if (!data.resources || data.resources.length === 0) {
+      list.innerHTML = `<p class="text-gray-500">写真がありません。</p>`;
+      return;
+    }
+
+    // 通常：写真一覧を 2 列グリッドで表示
+    data.resources.forEach(asset => {
+      const html = `
+        <button
+          class="group block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
+          onclick="openPhoto('${asset.secure_url}')"
+        >
+          <img
+            src="${asset.secure_url}"
+            alt=""
+            class="w-full h-56 object-cover"
+          />
+          <div class="px-4 py-3 border-t border-purple-50 text-right">
+            <span class="inline-flex items-center text-xs text-purple-600 font-medium">
+              ↓ 開いて保存
+            </span>
+          </div>
+        </button>
+      `;
+      list.insertAdjacentHTML("beforeend", html);
+    });
+
+  } catch (e) {
+    console.error("写真読み込みエラー:", e);
+    document.getElementById("photoList").innerHTML = `
+      <p class="text-red-500">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
+  }
+}
+
+/* -------------------------
         動画一覧を読み込み
 -------------------------- */
 async function loadVideos() {
@@ -139,39 +150,45 @@ async function loadVideos() {
   try {
     const res = await fetch(url);
 
+    const list = document.getElementById("videoList");
+    list.innerHTML = "";
+
     // フォルダ自体が存在しない場合は 404 → 動画なし扱い
     if (!res.ok) {
-      document.getElementById("videoList").innerHTML =
-        `<p class="text-gray-500">動画がありません。</p>`;
+      list.innerHTML = `<p class="text-gray-500">動画がありません。</p>`;
       return;
     }
 
     const data = await res.json();
 
-    const list = document.getElementById("videoList");
-    list.innerHTML = "";
-
-    // ★ 動画が 1 件も無い場合
+    // 動画が 1 件も無い場合
     if (!data.resources || data.resources.length === 0) {
-      list.innerHTML =
-        `<p class="text-gray-500">動画がありません。</p>`;
+      list.innerHTML = `<p class="text-gray-500">動画がありません。</p>`;
       return;
     }
 
-    // ★ 通常：動画がある場合のみ表示
+    // 通常：動画がある場合のみ表示
     data.resources.forEach(asset => {
       const html = `
-        <video controls class="rounded-xl shadow w-full">
-          <source src="${asset.secure_url}" type="video/mp4">
-        </video>
+        <div class="bg-white rounded-2xl shadow p-3">
+          <video controls class="rounded-xl w-full">
+            <source src="${asset.secure_url}" type="video/mp4">
+          </video>
+          <div class="mt-2 text-right">
+            <button
+              class="text-xs text-purple-600 font-medium"
+              onclick="openVideo('${asset.secure_url}')"
+            >
+              ↓ 開いて保存
+            </button>
+          </div>
+        </div>
       `;
       list.insertAdjacentHTML("beforeend", html);
     });
 
   } catch (e) {
-    console.log("動画読み込みエラー:", e);
-
-    // ★ ネットワークや API エラー時だけ赤で表示
+    console.error("動画読み込みエラー:", e);
     document.getElementById("videoList").innerHTML = `
       <p class="text-red-500">読み込みに失敗しました。時間をおいて再度お試しください。</p>`;
   }
