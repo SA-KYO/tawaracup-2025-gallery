@@ -101,7 +101,7 @@
         </div>
       </div>
 
-      <!-- 説明文（スマホメイン） -->
+      <!-- 説明文 -->
       <div class="text-xs md:text-sm text-slate-600 space-y-1 leading-relaxed">
         <p>
           スマホ：サムネイル または「↓ 開いて保存」をタップすると、写真／動画が別タブで開きます。
@@ -127,9 +127,7 @@
         気に入った写真をタップすると別タブで大きく表示できます。「↓ 開いて保存」から同じ画面を開けます。
       </p>
 
-      <div id="photoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <!-- 写真カードがここに挿入されます -->
-      </div>
+      <div id="photoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"></div>
       <p id="photoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
 
@@ -144,9 +142,7 @@
         （iPhoneでは“ファイル”アプリに保存されます）。
       </p>
 
-      <div id="videoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <!-- 動画カードがここに挿入されます -->
-      </div>
+      <div id="videoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"></div>
       <p id="videoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
 
@@ -177,7 +173,10 @@
     const photoMessageEl = document.getElementById("photoMessage");
     const videoMessageEl = document.getElementById("videoMessage");
 
-    // ===== タブ切り替え（UIだけ） =====
+    let photoLoaded = false;
+    let videoLoaded = false;
+
+    // ===== タブ切り替え =====
     function setActiveTab(tab) {
       if (tab === "photos") {
         tabPhotos.classList.add("bg-emerald-600", "text-white", "shadow-sm");
@@ -187,6 +186,8 @@
 
         sectionPhotos.classList.remove("hidden");
         sectionVideos.classList.add("hidden");
+
+        if (!photoLoaded) loadPhotos();
       } else {
         tabVideos.classList.add("bg-emerald-600", "text-white", "shadow-sm");
         tabVideos.classList.remove("text-emerald-700");
@@ -195,20 +196,16 @@
 
         sectionVideos.classList.remove("hidden");
         sectionPhotos.classList.add("hidden");
+
+        if (!videoLoaded) loadVideos();
       }
     }
 
-    tabPhotos.addEventListener("click", () => {
-      setActiveTab("photos");
-      loadPhotos();
-    });
+    tabPhotos.addEventListener("click", () => setActiveTab("photos"));
+    tabVideos.addEventListener("click", () => setActiveTab("videos"));
+    setActiveTab("photos"); // 初期表示
 
-    tabVideos.addEventListener("click", () => {
-      setActiveTab("videos");
-      loadVideos();
-    });
-
-    // ===== Utility: 名前・コメント取得 =====
+    // ===== 名前・コメント取得 =====
     function getCaption(item) {
       try {
         const raw = item?.context?.custom?.caption || "";
@@ -227,17 +224,36 @@
       }
     }
 
+    // ===== URL 生成（★secure_url が無い場合のフォールバック） =====
+    function buildImageUrl(item) {
+      if (item.secure_url) return item.secure_url;
+      if (item.public_id && item.format) {
+        return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.public_id}.${item.format}`;
+      }
+      return "";
+    }
+
+    function buildVideoUrl(item) {
+      if (item.secure_url) return item.secure_url;
+      if (item.public_id && item.format) {
+        return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/${item.public_id}.${item.format}`;
+      }
+      return "";
+    }
+
     // ===== 写真読み込み =====
     async function loadPhotos() {
       photoMessageEl.textContent = "読み込み中です…";
       photoListEl.innerHTML = "";
 
       try {
-        const res = await fetch(PHOTO_LIST_URL, { cache: "no-cache" });
-        if (!res.ok) throw new Error("photo list failed");
+        const res = await fetch(PHOTO_LIST_URL);
+        if (!res.ok) throw new Error("failed");
         const data = await res.json();
 
         const resources = data.resources || data || [];
+        photoLoaded = true;
+
         if (!resources.length) {
           photoMessageEl.textContent = "まだ写真がアップロードされていません。";
           return;
@@ -246,7 +262,7 @@
         photoMessageEl.textContent = "";
         renderPhotos(resources);
       } catch (e) {
-        console.error("photo load error", e);
+        console.error(e);
         photoMessageEl.textContent =
           "読み込みに失敗しました。時間をおいて再度お試しください。";
       }
@@ -256,7 +272,7 @@
       photoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const imageUrl = item.secure_url;
+        const imageUrl = buildImageUrl(item); // ★修正点
         if (!imageUrl) return;
 
         const name = getCaption(item) || "ゲスト";
@@ -266,7 +282,6 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
-        // サムネイル
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
         thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-slate-100";
@@ -282,7 +297,6 @@
           window.open(imageUrl, "_blank");
         });
 
-        // テキスト部
         const body = document.createElement("div");
         body.className = "px-3 pt-2 pb-3 flex flex-col gap-1";
 
@@ -326,11 +340,13 @@
       videoListEl.innerHTML = "";
 
       try {
-        const res = await fetch(VIDEO_LIST_URL, { cache: "no-cache" });
-        if (!res.ok) throw new Error("video list failed");
+        const res = await fetch(VIDEO_LIST_URL);
+        if (!res.ok) throw new Error("failed");
         const data = await res.json();
 
         const resources = data.resources || data || [];
+        videoLoaded = true;
+
         if (!resources.length) {
           videoMessageEl.textContent = "まだ動画がアップロードされていません。";
           return;
@@ -339,7 +355,7 @@
         videoMessageEl.textContent = "";
         renderVideos(resources);
       } catch (e) {
-        console.error("video load error", e);
+        console.error(e);
         videoMessageEl.textContent =
           "読み込みに失敗しました。時間をおいて再度お試しください。";
       }
@@ -349,7 +365,7 @@
       videoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const videoUrl = item.secure_url;
+        const videoUrl = buildVideoUrl(item); // ★修正点
         if (!videoUrl) return;
 
         const name = getCaption(item) || "ゲスト";
@@ -359,7 +375,6 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
-        // サムネイル（動画）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
         thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-black";
@@ -379,12 +394,10 @@
           '<div class="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center text-white text-xl">▶︎</div>';
         thumbBtn.appendChild(playIcon);
 
-        // サムネイルタップ → 別タブ再生
         thumbBtn.addEventListener("click", () => {
           window.open(videoUrl, "_blank");
         });
 
-        // テキスト部
         const body = document.createElement("div");
         body.className = "px-3 pt-2 pb-3 flex flex-col gap-1";
 
@@ -406,7 +419,7 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-        // ★ 動画だけ：blob を download で保存（iPhone なら「ダウンロードしますか？」）
+        // 動画専用：ダウンロード（失敗時は別タブ再生にフォールバック）
         openBtn.addEventListener("click", async () => {
           const baseName = (item.public_id || "").split("/").pop() || "video";
           const fileName = `${baseName}.${item.format || "mp4"}`;
@@ -429,7 +442,6 @@
             }, 10000);
           } catch (err) {
             console.error("download error", err);
-            // 失敗時はフォールバックで別タブ再生
             window.open(videoUrl, "_blank");
           }
         });
@@ -445,11 +457,6 @@
         videoListEl.appendChild(card);
       });
     }
-
-    // ===== 初期ロード =====
-    setActiveTab("photos");
-    loadPhotos();      // 最初に写真を表示
-    // 動画はタブを押したときに読み込み
   </script>
 </body>
 </html>
