@@ -102,11 +102,11 @@
       </div>
       <div id="hintVideos" class="hidden text-xs md:text-sm text-emerald-900/80 leading-relaxed space-y-1">
         <p>
-          スマホ：サムネイル または「↓ 開いて保存」をタップすると動画ファイルをダウンロードできます。
-          iPhoneでは「ファイル」アプリに保存される場合があります。
+          スマホ：サムネイル または「↓ 開いて保存」をタップすると動画ファイルの画面が別タブで開きます。
+          画面右上の共有メニューから「ファイルに保存」や「ビデオを保存」を選んでください。
         </p>
         <p class="text-[11px] md:text-xs text-emerald-900/70">
-          ※ブラウザや端末により動作が少し異なる場合があります。その際は共有メニューから「ビデオを保存」や「ファイルに保存」をお試しください。
+          ※ブラウザや端末により表示が少し異なる場合があります。
         </p>
       </div>
     </section>
@@ -146,7 +146,7 @@
       </h2>
       <p class="text-xs md:text-sm text-emerald-900/80 mb-3">
         好きな動画をタップすると別タブで再生できます。
-        「↓ 開いて保存」をタップすると動画ファイルをダウンロードできます。
+        「↓ 開いて保存」をタップすると動画ファイルの画面が開き、共有メニューから保存できます。
       </p>
 
       <div id="videosLoading" class="flex items-center gap-2 text-sm text-emerald-700 mb-3">
@@ -160,7 +160,7 @@
         動画の読み込みに失敗しました。時間をおいて再度お試しください。
       </p>
 
-      <!-- ★ 動画グリッドも写真と同じレイアウトに -->
+      <!-- 動画も写真と同じグリッド -->
       <div
         id="videosGrid"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5"
@@ -332,7 +332,7 @@
       }
     }
 
-    // ====== 動画ロード（写真と同じカードサイズ＋ダウンロード） ======
+    // ====== 動画ロード ======
     const videosGrid    = document.getElementById("videosGrid");
     const videosLoading = document.getElementById("videosLoading");
     const videosEmpty   = document.getElementById("videosEmpty");
@@ -361,13 +361,11 @@
           const comment    = safeDecode(commentRaw);
 
           const videoUrl = buildVideoUrl(item.public_id, item.format);
-          const downloadFileName = `${item.public_id}.${item.format}`;
 
           const card = document.createElement("article");
           card.className =
             "bg-white rounded-2xl shadow-sm border border-emerald-100 flex flex-col overflow-hidden";
 
-          // 写真と同じ aspect-[3/4] のカードに
           const thumbBtn = document.createElement("button");
           thumbBtn.type = "button";
           thumbBtn.className =
@@ -389,7 +387,6 @@
             video.pause();
           });
 
-          // 再生アイコンをオーバーレイ
           const playIcon = document.createElement("div");
           playIcon.className =
             "absolute inset-0 flex items-center justify-center";
@@ -420,14 +417,9 @@
             "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
           openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-          // ★ download 属性つきの一時リンクを作ってクリック → ダウンロード
+          // ★ ここを変更：別タブで動画を開く → 共有メニューから「ファイルに保存」など
           openBtn.addEventListener("click", () => {
-            const a = document.createElement("a");
-            a.href = videoUrl;
-            a.download = downloadFileName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            window.open(videoUrl, "_blank");
           });
 
           bottom.appendChild(openBtn);
