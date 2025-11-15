@@ -224,7 +224,7 @@
       }
     }
 
-    // ===== URL 生成（★secure_url が無い場合のフォールバック） =====
+    // ===== URL 生成（secure_url が無い場合のフォールバック） =====
     function buildImageUrl(item) {
       if (item.secure_url) return item.secure_url;
       if (item.public_id && item.format) {
@@ -239,6 +239,12 @@
         return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/${item.public_id}.${item.format}`;
       }
       return "";
+    }
+
+    // ★動画プレビュー用サムネイルURL（1秒目のフレームを静止画化）
+    function buildVideoThumbUrl(item) {
+      if (!item.public_id) return "";
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_1/${item.public_id}.jpg`;
     }
 
     // ===== 写真読み込み =====
@@ -272,7 +278,7 @@
       photoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const imageUrl = buildImageUrl(item); // ★修正点
+        const imageUrl = buildImageUrl(item);
         if (!imageUrl) return;
 
         const name = getCaption(item) || "ゲスト";
@@ -282,9 +288,10 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
+        // ★縦長に（pt-[120%]）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
-        thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-slate-100";
+        thumbBtn.className = "relative w-full pt-[120%] overflow-hidden bg-slate-100";
 
         const img = document.createElement("img");
         img.src = imageUrl;
@@ -365,9 +372,10 @@
       videoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const videoUrl = buildVideoUrl(item); // ★修正点
+        const videoUrl = buildVideoUrl(item);
         if (!videoUrl) return;
 
+        const thumbUrl = buildVideoThumbUrl(item); // ★プレビュー用
         const name = getCaption(item) || "ゲスト";
         const comment = getComment(item);
 
@@ -375,17 +383,17 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
+        // ★写真と同じサイズの縦長グリッド & 画像サムネイル
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
-        thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-black";
+        thumbBtn.className = "relative w-full pt-[120%] overflow-hidden bg-black";
 
-        const videoThumb = document.createElement("video");
-        videoThumb.src = videoUrl;
-        videoThumb.className = "absolute inset-0 w-full h-full object-cover";
-        videoThumb.muted = true;
-        videoThumb.playsInline = true;
-        videoThumb.preload = "metadata";
-        thumbBtn.appendChild(videoThumb);
+        const thumbImg = document.createElement("img");
+        thumbImg.src = thumbUrl || "about:blank";
+        thumbImg.alt = name || `video-${index + 1}`;
+        thumbImg.loading = "lazy";
+        thumbImg.className = "absolute inset-0 w-full h-full object-cover";
+        thumbBtn.appendChild(thumbImg);
 
         const playIcon = document.createElement("div");
         playIcon.className =
