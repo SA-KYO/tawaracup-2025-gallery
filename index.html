@@ -39,7 +39,7 @@
         rgba(255, 255, 255, 0.8) 50%,
         rgba(255, 255, 255, 0) 100%
       );
-      transform: translateX(-100%) rotate(15deg);
+      transform: translateX(-120%) rotate(15deg);
       animation: tw-shine 1.6s linear infinite;
     }
     @keyframes tw-shine {
@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <!-- 説明文（スマホ保存にフォーカス） -->
+      <!-- 説明文 -->
       <div id="hintPhotos" class="text-xs md:text-sm text-emerald-900/80 leading-relaxed space-y-1">
         <p>
           スマホ：サムネイル または「↓ 開いて保存」をタップすると写真が別タブで開きます。
@@ -121,7 +121,6 @@
         「↓ 開いて保存」から同じ画面を開くこともできます。
       </p>
 
-      <!-- 読み込み状態 -->
       <div id="photosLoading" class="flex items-center gap-2 text-sm text-emerald-700 mb-3">
         <span class="inline-block w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
         <span>写真を読み込み中です…</span>
@@ -133,7 +132,7 @@
         写真の読み込みに失敗しました。時間をおいて再度お試しください。
       </p>
 
-      <!-- グリッド -->
+      <!-- 写真グリッド -->
       <div
         id="photosGrid"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5"
@@ -150,7 +149,6 @@
         「↓ 開いて保存」をタップすると動画ファイルをダウンロードできます。
       </p>
 
-      <!-- 読み込み状態 -->
       <div id="videosLoading" class="flex items-center gap-2 text-sm text-emerald-700 mb-3">
         <span class="inline-block w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
         <span>動画を読み込み中です…</span>
@@ -162,10 +160,10 @@
         動画の読み込みに失敗しました。時間をおいて再度お試しください。
       </p>
 
-      <!-- グリッド（動画もカード型で表示） -->
+      <!-- ★ 動画グリッドも写真と同じレイアウトに -->
       <div
         id="videosGrid"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5"
       ></div>
     </section>
 
@@ -180,15 +178,15 @@
   <script>
     // ====== Cloudinary 設定 ======
     const CLOUD_NAME = "dpef3dzrk";
-    const TAG_NAME = "tawarahai2025"; // アップロード時につけているタグ
+    const TAG_NAME   = "tawarahai2025";
 
     // ====== タブ切り替え ======
-    const tabPhotos = document.getElementById("tabPhotos");
-    const tabVideos = document.getElementById("tabVideos");
-    const photosSection = document.getElementById("photosSection");
-    const videosSection = document.getElementById("videosSection");
-    const hintPhotos = document.getElementById("hintPhotos");
-    const hintVideos = document.getElementById("hintVideos");
+    const tabPhotos      = document.getElementById("tabPhotos");
+    const tabVideos      = document.getElementById("tabVideos");
+    const photosSection  = document.getElementById("photosSection");
+    const videosSection  = document.getElementById("videosSection");
+    const hintPhotos     = document.getElementById("hintPhotos");
+    const hintVideos     = document.getElementById("hintVideos");
 
     let videosLoaded = false;
 
@@ -201,7 +199,6 @@
 
       photosSection.classList.remove("hidden");
       videosSection.classList.add("hidden");
-
       hintPhotos.classList.remove("hidden");
       hintVideos.classList.add("hidden");
     });
@@ -215,7 +212,6 @@
 
       photosSection.classList.add("hidden");
       videosSection.classList.remove("hidden");
-
       hintPhotos.classList.add("hidden");
       hintVideos.classList.remove("hidden");
 
@@ -247,7 +243,7 @@
     };
 
     // ====== 写真ロード ======
-    const photosGrid   = document.getElementById("photosGrid");
+    const photosGrid    = document.getElementById("photosGrid");
     const photosLoading = document.getElementById("photosLoading");
     const photosEmpty   = document.getElementById("photosEmpty");
     const photosError   = document.getElementById("photosError");
@@ -269,12 +265,12 @@
         }
 
         resources.forEach((item) => {
-          const nameRaw = item.context?.custom?.caption || "";
+          const nameRaw    = item.context?.custom?.caption || "";
           const commentRaw = item.context?.custom?.alt || "";
-          const name = safeDecode(nameRaw);
-          const comment = safeDecode(commentRaw);
+          const name       = safeDecode(nameRaw);
+          const comment    = safeDecode(commentRaw);
 
-          const thumbUrl = buildImageUrl(item.public_id, item.format, true);
+          const thumbUrl    = buildImageUrl(item.public_id, item.format, true);
           const originalUrl = buildImageUrl(item.public_id, item.format, false);
 
           const card = document.createElement("article");
@@ -336,8 +332,8 @@
       }
     }
 
-    // ====== 動画ロード ======
-    const videosGrid   = document.getElementById("videosGrid");
+    // ====== 動画ロード（写真と同じカードサイズ＋ダウンロード） ======
+    const videosGrid    = document.getElementById("videosGrid");
     const videosLoading = document.getElementById("videosLoading");
     const videosEmpty   = document.getElementById("videosEmpty");
     const videosError   = document.getElementById("videosError");
@@ -359,21 +355,23 @@
         }
 
         resources.forEach((item) => {
-          const nameRaw = item.context?.custom?.caption || "";
+          const nameRaw    = item.context?.custom?.caption || "";
           const commentRaw = item.context?.custom?.alt || "";
-          const name = safeDecode(nameRaw);
-          const comment = safeDecode(commentRaw);
+          const name       = safeDecode(nameRaw);
+          const comment    = safeDecode(commentRaw);
 
           const videoUrl = buildVideoUrl(item.public_id, item.format);
+          const downloadFileName = `${item.public_id}.${item.format}`;
 
           const card = document.createElement("article");
           card.className =
             "bg-white rounded-2xl shadow-sm border border-emerald-100 flex flex-col overflow-hidden";
 
+          // 写真と同じ aspect-[3/4] のカードに
           const thumbBtn = document.createElement("button");
           thumbBtn.type = "button";
           thumbBtn.className =
-            "relative aspect-video w-full overflow-hidden bg-black/90 hover:opacity-90 transition";
+            "relative aspect-[3/4] w-full overflow-hidden bg-black/90 hover:opacity-90 transition";
           thumbBtn.addEventListener("click", () => {
             window.open(videoUrl, "_blank");
           });
@@ -391,7 +389,15 @@
             video.pause();
           });
 
+          // 再生アイコンをオーバーレイ
+          const playIcon = document.createElement("div");
+          playIcon.className =
+            "absolute inset-0 flex items-center justify-center";
+          playIcon.innerHTML =
+            '<div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 flex items-center justify-center text-white text-xl">▶</div>';
+
           thumbBtn.appendChild(video);
+          thumbBtn.appendChild(playIcon);
 
           const body = document.createElement("div");
           body.className = "flex-1 px-3 pt-2 pb-3 flex flex-col";
@@ -413,8 +419,15 @@
           openBtn.className =
             "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
           openBtn.innerHTML = "↓ <span>開いて保存</span>";
+
+          // ★ download 属性つきの一時リンクを作ってクリック → ダウンロード
           openBtn.addEventListener("click", () => {
-            window.open(videoUrl, "_blank");
+            const a = document.createElement("a");
+            a.href = videoUrl;
+            a.download = downloadFileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
           });
 
           bottom.appendChild(openBtn);
