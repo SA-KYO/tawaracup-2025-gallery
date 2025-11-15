@@ -127,9 +127,7 @@
         気に入った写真をタップすると別タブで大きく表示できます。「↓ 開いて保存」から同じ画面を開けます。
       </p>
 
-      <div id="photoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <!-- 写真カードがここに挿入されます -->
-      </div>
+      <div id="photoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"></div>
       <p id="photoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
 
@@ -144,9 +142,7 @@
         （iPhoneでは“ファイル”アプリに保存されます）。
       </p>
 
-      <div id="videoList" class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-        <!-- 動画カードがここに挿入されます -->
-      </div>
+      <div id="videoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"></div>
       <p id="videoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
 
@@ -161,8 +157,8 @@
     const CLOUD_NAME = "dpef3dzrk";
     const TAG = "tawarahai2025";
 
-    const PHOTO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
-    const VIDEO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
+    const PHOTO_LIST_URL = "https://res.cloudinary.com/" + CLOUD_NAME + "/image/list/" + TAG + ".json";
+    const VIDEO_LIST_URL = "https://res.cloudinary.com/" + CLOUD_NAME + "/video/list/" + TAG + ".json";
 
     // ===== DOM 取得 =====
     const tabPhotos = document.getElementById("tabPhotos");
@@ -178,8 +174,6 @@
     // キャッシュ
     let photoLoaded = false;
     let videoLoaded = false;
-    let photoCache = [];
-    let videoCache = [];
 
     // ===== タブ切り替え =====
     function setActiveTab(tab) {
@@ -206,30 +200,46 @@
       }
     }
 
-    tabPhotos.addEventListener("click", () => setActiveTab("photos"));
-    tabVideos.addEventListener("click", () => setActiveTab("videos"));
+    tabPhotos.addEventListener("click", function () { setActiveTab("photos"); });
+    tabVideos.addEventListener("click", function () { setActiveTab("videos"); });
 
     // 初期表示は写真
     setActiveTab("photos");
 
-    // ===== Utility: 名前・コメント取得 =====
+    // ===== Utility: 名前・コメント取得（optional chaining を使わない） =====
     function getCaption(item) {
-      // context.custom.caption に URLエンコードした名前が入っている想定
       try {
-        const raw = item?.context?.custom?.caption || "";
+        if (!item || !item.context || !item.context.custom || !item.context.custom.caption) {
+          return "";
+        }
+        var raw = item.context.custom.caption;
         return raw ? decodeURIComponent(raw) : "";
-      } catch {
-        return item?.context?.custom?.caption || "";
+      } catch (e) {
+        try {
+          return item.context && item.context.custom && item.context.custom.caption
+            ? item.context.custom.caption
+            : "";
+        } catch (e2) {
+          return "";
+        }
       }
     }
 
     function getComment(item) {
-      // context.custom.alt に URLエンコードしたコメントが入っている想定
       try {
-        const raw = item?.context?.custom?.alt || "";
+        if (!item || !item.context || !item.context.custom || !item.context.custom.alt) {
+          return "";
+        }
+        var raw = item.context.custom.alt;
         return raw ? decodeURIComponent(raw) : "";
-      } catch {
-        return item?.context?.custom?.alt || "";
+      } catch (e) {
+        try {
+          return item.context && item.context.custom && item.context.custom.alt
+            ? item.context.custom.alt
+            : "";
+        } catch (e2) {
+          return "";
+        }
       }
     }
 
@@ -243,8 +253,7 @@
         if (!res.ok) throw new Error("failed");
         const data = await res.json();
 
-        const resources = data.resources || data || [];
-        photoCache = resources;
+        const resources = data && data.resources ? data.resources : [];
         photoLoaded = true;
 
         if (!resources.length) {
@@ -263,7 +272,7 @@
     function renderPhotos(items) {
       photoListEl.innerHTML = "";
 
-      items.forEach((item, index) => {
+      items.forEach(function (item, index) {
         const imageUrl = item.secure_url;
         if (!imageUrl) return;
 
@@ -280,12 +289,12 @@
         thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-slate-100";
         const img = document.createElement("img");
         img.src = imageUrl;
-        img.alt = comment || name || `photo-${index + 1}`;
+        img.alt = comment || name || ("photo-" + (index + 1));
         img.loading = "lazy";
         img.className = "absolute inset-0 w-full h-full object-cover";
         thumbBtn.appendChild(img);
 
-        thumbBtn.addEventListener("click", () => {
+        thumbBtn.addEventListener("click", function () {
           window.open(imageUrl, "_blank");
         });
 
@@ -298,7 +307,7 @@
         nameEl.textContent = name;
 
         const commentEl = document.createElement("p");
-        commentEl.className = "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
+        commentEl.className = "text-[11px] text-slate-500 min-h-[1.5em]";
         commentEl.textContent = comment || "";
 
         // ボタン
@@ -311,8 +320,8 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-        // 写真は既存どおり：別タブで開く → ユーザーが長押し保存
-        openBtn.addEventListener("click", () => {
+        // 写真は従来どおり：別タブで開いて長押し保存
+        openBtn.addEventListener("click", function () {
           window.open(imageUrl, "_blank");
         });
 
@@ -338,8 +347,7 @@
         if (!res.ok) throw new Error("failed");
         const data = await res.json();
 
-        const resources = data.resources || data || [];
-        videoCache = resources;
+        const resources = data && data.resources ? data.resources : [];
         videoLoaded = true;
 
         if (!resources.length) {
@@ -358,7 +366,7 @@
     function renderVideos(items) {
       videoListEl.innerHTML = "";
 
-      items.forEach((item, index) => {
+      items.forEach(function (item, index) {
         const videoUrl = item.secure_url;
         if (!videoUrl) return;
 
@@ -389,8 +397,8 @@
           '<div class="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center text-white text-xl">▶︎</div>';
         thumbBtn.appendChild(playIcon);
 
-        // サムネイルタップ → 別タブで再生（既存仕様）
-        thumbBtn.addEventListener("click", () => {
+        // サムネイルタップ → 別タブで再生
+        thumbBtn.addEventListener("click", function () {
           window.open(videoUrl, "_blank");
         });
 
@@ -403,10 +411,10 @@
         nameEl.textContent = name;
 
         const commentEl = document.createElement("p");
-        commentEl.className = "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
+        commentEl.className = "text-[11px] text-slate-500 min-h-[1.5em]";
         commentEl.textContent = comment || "";
 
-        // ボタン（★ここだけ今回の修正★）
+        // ボタン（動画だけダウンロード）
         const btnWrapper = document.createElement("div");
         btnWrapper.className = "mt-2";
 
@@ -416,18 +424,15 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-        // ★ 動画専用：「↓ 開いて保存」でダウンロード要求を出す
-        openBtn.addEventListener("click", async () => {
+        openBtn.addEventListener("click", async function () {
           const baseName = (item.public_id || "").split("/").pop() || "video";
-          const fileName = `${baseName}.${item.format || "mp4"}`;
+          const fileName = baseName + "." + (item.format || "mp4");
 
           try {
-            // Cloudinary から動画を blob として取得
             const response = await fetch(videoUrl);
             if (!response.ok) throw new Error("download failed");
             const blob = await response.blob();
 
-            // blob URL を作って download 属性付きリンクでクリック
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
@@ -436,13 +441,12 @@
             a.click();
             document.body.removeChild(a);
 
-            // 後片付け
-            setTimeout(() => {
+            setTimeout(function () {
               window.URL.revokeObjectURL(blobUrl);
             }, 10000);
           } catch (err) {
             console.error("download error", err);
-            // 失敗時はこれまで通り別タブ再生にフォールバック
+            // 失敗したら従来どおり別タブ再生にフォールバック
             window.open(videoUrl, "_blank");
           }
         });
