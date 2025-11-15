@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 ギャラリー</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- フォント -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -23,385 +23,514 @@
     }
     .title-font {
       font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
     }
-    /* コンペバッジのキラッ✨ */
-    .sparkle {
+
+    /* コンペバッジのキラッ演出 */
+    .badge-shine {
       position: relative;
       overflow: hidden;
     }
-    .sparkle::after {
+    .badge-shine::after {
       content: "";
       position: absolute;
-      top: -120%;
-      left: -120%;
-      width: 80%;
+      top: -150%;
+      left: -50%;
+      width: 40%;
       height: 300%;
       background: linear-gradient(
         120deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.9) 50%,
-        transparent 100%
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(255, 255, 255, 0) 100%
       );
-      transform: translateX(-120%) rotate(20deg);
-      opacity: 0;
-      pointer-events: none;
+      transform: translateX(-100%) rotate(20deg);
+      animation: shine 2.5s linear infinite;
     }
-    .sparkle-animate::after {
-      animation: sparkleSweep 1s ease-out forwards;
-    }
-    @keyframes sparkleSweep {
+    @keyframes shine {
       0% {
         transform: translateX(-120%) rotate(20deg);
-        opacity: 0;
       }
-      20% {
-        opacity: 1;
+      40% {
+        transform: translateX(220%) rotate(20deg);
       }
       100% {
-        transform: translateX(160%) rotate(20deg);
-        opacity: 0;
+        transform: translateX(220%) rotate(20deg);
       }
+    }
+
+    /* プレビュー用モーダル */
+    .preview-hidden {
+      display: none;
     }
   </style>
 </head>
+<body class="bg-gradient-to-b from-emerald-50 via-emerald-50 to-white min-h-screen">
 
-<body class="bg-gradient-to-b from-emerald-50 via-white to-emerald-100 min-h-screen">
+  <!-- 全体コンテナ -->
+  <div class="max-w-5xl mx-auto px-4 py-6 md:py-10">
 
-<main class="max-w-5xl mx-auto px-4 py-10 md:py-14">
-  <!-- ヘッダー -->
-  <header class="mb-8 md:mb-10 text-center">
-    <div
-      id="badge"
-      class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-100 text-emerald-800 text-sm md:text-base font-semibold sparkle shadow-sm"
-    >
-      <span class="text-lg">🏌️‍♂️</span>
-      <span>多和楽杯2025 コンペ</span>
-      <span class="text-amber-400 text-lg">✨</span>
-    </div>
-
-    <h1 class="title-font text-2xl md:text-3xl font-bold text-slate-900 mt-4">
-      写真・動画ギャラリー
-    </h1>
-    <p class="mt-2 text-sm md:text-base text-slate-600">
-      コンペ当日にみんながアップしてくれたベストショットが並びます。
-    </p>
-  </header>
-
-  <!-- トップエリア（タブ＋説明） -->
-  <section class="bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-emerald-100 p-4 md:p-6 mb-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <!-- タブ -->
-      <div class="flex justify-center md:justify-start">
-        <div class="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 p-1">
-          <button
-            id="tabPhotos"
-            class="px-5 py-1.5 text-sm font-semibold rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1 transition"
-          >
-            <span>📷</span><span>写真</span>
-          </button>
-          <button
-            id="tabVideos"
-            class="px-5 py-1.5 text-sm font-semibold rounded-full text-emerald-700 flex items-center gap-1 transition"
-          >
-            <span>🎥</span><span>動画</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 説明 -->
-      <div class="text-xs md:text-[13px] text-slate-500 space-y-1">
-        <p>
-          スマホ：
-          <span class="font-semibold">サムネイル</span> または
-          <span class="font-semibold">「↓ 開いて保存」</span> をタップすると
-          画像／動画が <strong>別タブ</strong> で開きます。そこで
-          <span class="font-semibold">長押し →「写真に保存」「ビデオを保存」</span>
-          を選んでください。
-        </p>
-        <p>
-          PC：サムネイル or 「↓ 開いて保存」→ 開いた画面で右クリック「名前を付けて保存」でダウンロードできます。
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ローディング／エラー -->
-  <p id="loading" class="text-center text-sm text-slate-500 mt-4">
-    読み込み中です…
-  </p>
-  <p id="globalError" class="hidden text-center text-sm text-red-500 mt-4">
-    読み込みに失敗しました。時間をおいて再度お試しください。
-  </p>
-
-  <!-- 写真セクション -->
-  <section id="photosSection" class="mt-4">
-    <div class="flex items-center gap-2 mb-2">
-      <span class="text-lg">📸</span>
-      <h2 class="text-base md:text-lg font-semibold text-slate-800">写真一覧</h2>
-    </div>
-    <p class="text-xs text-slate-500 mb-3">
-      気に入った写真をタップすると別タブで大きく表示できます。
-      「↓ 開いて保存」からも同じ画面を開けます。
-    </p>
-
-    <div id="photosGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5"></div>
-
-    <p id="photosEmpty" class="hidden text-sm text-slate-400 mt-6 text-center">
-      まだ写真はアップロードされていません。
-    </p>
-  </section>
-
-  <!-- 動画セクション -->
-  <section id="videosSection" class="mt-8 hidden">
-    <div class="flex items-center gap-2 mb-2">
-      <span class="text-lg">🎬</span>
-      <h2 class="text-base md:text-lg font-semibold text-slate-800">動画一覧</h2>
-    </div>
-    <p class="text-xs text-slate-500 mb-3">
-      動画サムネイルをタップすると別タブで再生画面が開きます。
-      「↓ 開いて保存」からも同じ画面を開けます。
-    </p>
-
-    <div id="videosGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5"></div>
-
-    <p id="videosEmpty" class="hidden text-sm text-slate-400 mt-6 text-center">
-      まだ動画はアップロードされていません。
-    </p>
-  </section>
-
-  <!-- フッター -->
-  <footer class="mt-10 text-center text-[11px] md:text-xs text-slate-400">
-    © 2025 多和楽杯コンペ実行委員会
-  </footer>
-</main>
-
-<script>
-  // ========= Cloudinary 設定 =========
-  const CLOUD_NAME = "dpef3dzrk";
-  const TAG = "tawarahai2025";
-
-  const imageListUrl =
-    `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
-  const videoListUrl =
-    `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
-
-  const loadingEl = document.getElementById("loading");
-  const globalErrorEl = document.getElementById("globalError");
-
-  const photosGrid = document.getElementById("photosGrid");
-  const videosGrid = document.getElementById("videosGrid");
-  const photosEmptyEl = document.getElementById("photosEmpty");
-  const videosEmptyEl = document.getElementById("videosEmpty");
-
-  const photosSection = document.getElementById("photosSection");
-  const videosSection = document.getElementById("videosSection");
-  const tabPhotosBtn = document.getElementById("tabPhotos");
-  const tabVideosBtn = document.getElementById("tabVideos");
-
-  // ========= キラッ✨アニメ =========
-  const badge = document.getElementById("badge");
-  setInterval(() => {
-    badge.classList.remove("sparkle-animate");
-    setTimeout(() => badge.classList.add("sparkle-animate"), 50);
-  }, 1200);
-
-  // ========= 安全な decode =========
-  function safeDecode(value) {
-    if (!value) return "";
-    try {
-      return decodeURIComponent(value);
-    } catch {
-      return value;
-    }
-  }
-
-  // ========= Cloudinary list 取得 =========
-  async function fetchResources(url) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        if (res.status === 404) {
-          // まだ何もない場合
-          return [];
-        }
-        throw new Error("status " + res.status);
-      }
-      const data = await res.json();
-      return Array.isArray(data.resources) ? data.resources : [];
-    } catch (err) {
-      console.error("fetchResources error:", err);
-      return [];
-    }
-  }
-
-  // ========= カード生成 =========
-  function createMediaCard(resource, { isVideo }) {
-    // Cloudinary が返す元URLをそのまま使う
-    const originalUrl = resource.secure_url || resource.url || "";
-    if (!originalUrl) {
-      console.warn("no url for resource", resource);
-    }
-
-    const customCtx = resource.context && resource.context.custom;
-    const rawName = customCtx && customCtx.caption;
-    const rawComment = customCtx && customCtx.alt;
-
-    const name = safeDecode(rawName) || "";
-    const comment = safeDecode(rawComment) || "";
-
-    const card = document.createElement("article");
-    card.className =
-      "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
-
-    // サムネイル部分（画像／動画どちらもオリジナルURL）
-    const thumbInner = isVideo
-      ? `
-      <div class="relative group">
-        <video
-          src="${originalUrl}#t=1"
-          class="w-full aspect-[4/5] object-cover pointer-events-none"
-          muted
-          playsinline
-          preload="metadata"
-        ></video>
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div class="bg-black/60 rounded-full p-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-      `
-      : `
-      <img
-        src="${originalUrl}"
-        alt="${name || "アップロードされた写真"}"
-        loading="lazy"
-        class="w-full aspect-[4/5] object-cover"
-      />
-      `;
-
-    card.innerHTML = `
-      <button type="button" class="thumb-btn">
-        ${thumbInner}
-      </button>
-
-      <div class="px-3 pt-2 pb-3 text-xs text-slate-600 flex flex-col gap-1">
-        ${
-          name || comment
-            ? `<p class="font-semibold text-slate-800 truncate">${name || "お名前なし"}</p>`
-            : `<p class="font-semibold text-slate-400">お名前なし</p>`
-        }
-        ${
-          comment
-            ? `<p class="text-[11px] leading-snug whitespace-pre-line">${comment}</p>`
-            : `<p class="text-[11px] text-slate-400">コメントなし</p>`
-        }
-        <button
-          type="button"
-          class="mt-2 inline-flex items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700 font-semibold text-[11px] py-1.5 px-3 hover:bg-emerald-100 transition save-btn"
+    <!-- 上部ヘッダー -->
+    <header class="flex items-center justify-between mb-6 md:mb-8">
+      <div>
+        <div
+          class="inline-flex items-center gap-2 badge-shine bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold shadow-sm"
         >
-          <span class="mr-1">↓</span><span>開いて保存</span>
+          <span class="text-lg">⛳</span>
+          <span>多和楽杯2025 コンペ</span>
+        </div>
+        <h1
+          class="title-font text-2xl md:text-3xl font-bold text-slate-900 mt-3"
+        >
+          写真・動画ギャラリー
+        </h1>
+        <p class="text-sm md:text-base text-slate-600 mt-1">
+          コンペ当日にみんながアップしてくれたベストショットが並びます。
+        </p>
+      </div>
+
+      <!-- アップロード画面へ戻る -->
+      <a
+        href="https://tawaracup-2025-photo.netlify.app/"
+        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-emerald-300 text-emerald-700 text-xs md:text-sm font-semibold hover:bg-emerald-50 transition"
+      >
+        ← アップロード画面へ戻る
+      </a>
+    </header>
+
+    <!-- スマホ用 戻るボタン -->
+    <div class="sm:hidden mb-4">
+      <a
+        href="https://tawaracup-2025-photo.netlify.app/"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-emerald-300 text-emerald-700 text-xs font-semibold hover:bg-emerald-50 transition"
+      >
+        ← アップロード画面へ戻る
+      </a>
+    </div>
+
+    <!-- 説明＆タブ -->
+    <section
+      class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-md border border-emerald-100 px-4 md:px-6 py-4 md:py-5 mb-6"
+    >
+      <!-- タブボタン -->
+      <div
+        class="inline-flex items-center bg-emerald-50 rounded-full p-1 mb-3 shadow-inner"
+      >
+        <button
+          id="tab-photo"
+          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition
+                 bg-emerald-500 text-white shadow"
+          type="button"
+        >
+          <span>📷</span>
+          <span>写真</span>
+        </button>
+        <button
+          id="tab-video"
+          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition
+                 text-emerald-700"
+          type="button"
+        >
+          <span>🎬</span>
+          <span>動画</span>
         </button>
       </div>
-    `;
 
-    const thumbBtn = card.querySelector(".thumb-btn");
-    const saveBtn = card.querySelector(".save-btn");
+      <!-- 保存方法の説明 -->
+      <p class="text-xs md:text-sm text-slate-600 leading-relaxed">
+        <span class="font-semibold">スマホ：</span>
+        サムネイル または「<span class="font-semibold">↓ 開いて保存</span>」ボタンを
+        タップすると、画像・動画が<span class="font-semibold">別タブ</span>で開きます。
+        そこで長押しして
+        <span class="font-semibold">「写真に保存」</span> /
+        <span class="font-semibold">「ビデオを保存」</span> を選んでください。<br />
+        <span class="font-semibold">PC：</span>
+        サムネイル or 「↓ 開いて保存」 → 開いた画面で右クリック「名前を付けて保存」でダウンロードできます。
+      </p>
+    </section>
 
-    // サムネイルタップ → 別タブで元URLを開く
-    if (thumbBtn) {
-      thumbBtn.addEventListener("click", () => {
-        if (originalUrl) {
-          window.open(originalUrl, "_blank");
+    <!-- 写真セクション -->
+    <section id="photo-section" class="mb-8">
+      <h2 class="flex items-center gap-2 text-lg md:text-xl font-bold text-slate-900 mb-2">
+        <span>📸</span>
+        <span>写真一覧</span>
+      </h2>
+      <p class="text-xs md:text-sm text-slate-600 mb-3">
+        気に入った写真をタップすると大きく表示できます。
+        「↓ 開いて保存」から同じ画面を別タブで開くこともできます。
+      </p>
+
+      <div
+        id="photo-status"
+        class="text-center text-sm text-slate-500 py-6"
+      >
+        読み込み中です…
+      </div>
+
+      <div
+        id="photo-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+      ></div>
+    </section>
+
+    <!-- 動画セクション -->
+    <section id="video-section" class="mb-4 hidden">
+      <h2 class="flex items-center gap-2 text-lg md:text-xl font-bold text-slate-900 mb-2">
+        <span>🎥</span>
+        <span>動画一覧</span>
+      </h2>
+      <p class="text-xs md:text-sm text-slate-600 mb-3">
+        サムネイルをタップすると動画を再生できます。
+        「↓ 開いて保存」を押して開いた画面で長押し → 「ビデオを保存」が可能です。
+      </p>
+
+      <div
+        id="video-status"
+        class="text-center text-sm text-slate-500 py-6"
+      >
+        読み込み中です…
+      </div>
+
+      <div
+        id="video-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+      ></div>
+    </section>
+
+    <footer class="mt-6 text-center text-xs md:text-sm text-slate-400">
+      © 2025 多和楽杯コンペ実行委員会
+    </footer>
+  </div>
+
+  <!-- プレビュー用モーダル -->
+  <div
+    id="preview-overlay"
+    class="fixed inset-0 bg-black/80 z-50 preview-hidden items-center justify-center px-4"
+  >
+    <button
+      id="preview-close"
+      class="absolute top-4 right-4 text-white/80 hover:text-white text-2xl font-semibold"
+      type="button"
+    >
+      ×
+    </button>
+
+    <img
+      id="preview-image"
+      class="max-h-[80vh] max-w-[92vw] object-contain rounded-xl shadow-2xl border border-white/10 preview-hidden"
+      alt="preview"
+    />
+
+    <video
+      id="preview-video"
+      class="max-h-[80vh] max-w-[92vw] rounded-xl shadow-2xl border border-white/10 preview-hidden"
+      controls
+      playsinline
+    ></video>
+  </div>
+
+  <script>
+    // ====== Cloudinary 設定 ======
+    const CLOUD_NAME = "dpef3dzrk";
+    const TAG = "tawarahai2025";
+
+    // キャッシュ（2回目以降のタブ切り替えを高速化）
+    let photoCache = null;
+    let videoCache = null;
+
+    // DOM 参照
+    const tabPhoto = document.getElementById("tab-photo");
+    const tabVideo = document.getElementById("tab-video");
+    const photoSection = document.getElementById("photo-section");
+    const videoSection = document.getElementById("video-section");
+    const photoGrid = document.getElementById("photo-grid");
+    const videoGrid = document.getElementById("video-grid");
+    const photoStatus = document.getElementById("photo-status");
+    const videoStatus = document.getElementById("video-status");
+
+    const previewOverlay = document.getElementById("preview-overlay");
+    const previewImage = document.getElementById("preview-image");
+    const previewVideo = document.getElementById("preview-video");
+    const previewCloseBtn = document.getElementById("preview-close");
+
+    // ====== ユーティリティ ======
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function createImageUrl(publicId) {
+      // 大きめ表示用
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto/${publicId}`;
+    }
+
+    function createImageThumbUrl(publicId) {
+      // 正方形サムネイル
+      return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/c_fill,w_700,h_700,f_auto,q_auto/${publicId}`;
+    }
+
+    function createVideoUrl(publicId) {
+      // mp4で再生＆保存しやすいように
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/f_auto,q_auto/${publicId}.mp4`;
+    }
+
+    function createVideoPosterUrl(publicId) {
+      // 動画の1フレーム画像
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/f_auto,q_auto/${publicId}.jpg`;
+    }
+
+    function openPreview(kind, url) {
+      previewOverlay.classList.remove("preview-hidden");
+      previewOverlay.classList.add("flex");
+
+      if (kind === "photo") {
+        previewVideo.classList.add("preview-hidden");
+        previewVideo.pause();
+        previewImage.src = url;
+        previewImage.classList.remove("preview-hidden");
+      } else {
+        previewImage.classList.add("preview-hidden");
+        previewImage.src = "";
+        previewVideo.src = url;
+        previewVideo.classList.remove("preview-hidden");
+        previewVideo.play().catch(() => {});
+      }
+    }
+
+    function closePreview() {
+      previewOverlay.classList.add("preview-hidden");
+      previewOverlay.classList.remove("flex");
+      previewImage.src = "";
+      previewVideo.pause();
+      previewVideo.src = "";
+    }
+
+    previewOverlay.addEventListener("click", (e) => {
+      if (e.target === previewOverlay) {
+        closePreview();
+      }
+    });
+    previewCloseBtn.addEventListener("click", closePreview);
+
+    // ====== Cloudinary Resource List 取得 ======
+    async function fetchResources(resourceType) {
+      const url = `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/list/${TAG}.json`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.warn("Resource list error:", resourceType, res.status);
+          return [];
         }
+        const data = await res.json();
+        return data.resources || [];
+      } catch (err) {
+        console.error("Fetch error:", resourceType, err);
+        return [];
+      }
+    }
+
+    // ====== 写真の描画 ======
+    function renderPhotos(resources) {
+      photoGrid.innerHTML = "";
+
+      if (!resources || resources.length === 0) {
+        photoStatus.textContent = "まだ写真はアップロードされていません。";
+        return;
+      } else {
+        photoStatus.textContent = "";
+      }
+
+      resources.forEach((res) => {
+        const publicId = res.public_id;
+        const ctx = (res.context && res.context.custom) || {};
+        const name = ctx.caption || "";
+        const comment = ctx.alt || "";
+
+        const originalUrl = createImageUrl(publicId);
+        const thumbUrl = createImageThumbUrl(publicId);
+
+        const card = document.createElement("div");
+        card.className =
+          "bg-white rounded-2xl shadow-sm border border-emerald-100 p-3 flex flex-col gap-2";
+
+        // サムネイルボタン
+        const thumbBtn = document.createElement("button");
+        thumbBtn.type = "button";
+        thumbBtn.className =
+          "relative w-full pt-[100%] overflow-hidden rounded-xl bg-slate-100";
+        const img = document.createElement("img");
+        img.src = thumbUrl;
+        img.alt = name || "photo";
+        img.loading = "lazy";
+        img.className =
+          "absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300";
+        thumbBtn.appendChild(img);
+
+        thumbBtn.addEventListener("click", () => {
+          openPreview("photo", originalUrl);
+        });
+
+        // 名前＋コメント
+        const meta = document.createElement("div");
+        meta.className = "text-xs text-slate-600";
+        const nameEl = document.createElement("div");
+        nameEl.className = "font-semibold text-slate-900 truncate";
+        nameEl.textContent = name || "お名前なし";
+        meta.appendChild(nameEl);
+
+        if (comment) {
+          const comEl = document.createElement("div");
+          comEl.className = "mt-0.5 text-[11px] text-slate-500 whitespace-pre-wrap";
+          comEl.innerHTML = escapeHtml(comment);
+          meta.appendChild(comEl);
+        }
+
+        // 「開いて保存」リンク
+        const saveLink = document.createElement("a");
+        saveLink.href = originalUrl;
+        saveLink.target = "_blank";
+        saveLink.rel = "noopener";
+        saveLink.className =
+          "mt-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold hover:bg-emerald-100 transition";
+        saveLink.textContent = "↓ 開いて保存";
+
+        card.appendChild(thumbBtn);
+        card.appendChild(meta);
+        card.appendChild(saveLink);
+
+        photoGrid.appendChild(card);
       });
     }
 
-    // 「↓ 開いて保存」 → 同じく別タブで開く
-    if (saveBtn) {
-      saveBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (originalUrl) {
-          window.open(originalUrl, "_blank");
+    // ====== 動画の描画 ======
+    function renderVideos(resources) {
+      videoGrid.innerHTML = "";
+
+      if (!resources || resources.length === 0) {
+        videoStatus.textContent = "まだ動画はアップロードされていません。";
+        return;
+      } else {
+        videoStatus.textContent = "";
+      }
+
+      resources.forEach((res) => {
+        const publicId = res.public_id;
+        const ctx = (res.context && res.context.custom) || {};
+        const name = ctx.caption || "";
+        const comment = ctx.alt || "";
+
+        const videoUrl = createVideoUrl(publicId);
+        const posterUrl = createVideoPosterUrl(publicId);
+
+        const card = document.createElement("div");
+        card.className =
+          "bg-white rounded-2xl shadow-sm border border-emerald-100 p-3 flex flex-col gap-2";
+
+        // サムネイル（画像）＋ 再生アイコン
+        const thumbBtn = document.createElement("button");
+        thumbBtn.type = "button";
+        thumbBtn.className =
+          "relative w-full pt-[100%] overflow-hidden rounded-xl bg-slate-100";
+
+        const img = document.createElement("img");
+        img.src = posterUrl;
+        img.alt = name || "video";
+        img.loading = "lazy";
+        img.className =
+          "absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300";
+
+        const playBadge = document.createElement("div");
+        playBadge.className =
+          "absolute inset-0 flex items-center justify-center";
+        playBadge.innerHTML =
+          '<div class="w-12 h-12 rounded-full bg-black/70 flex items-center justify-center text-white text-xl">&#9654;</div>';
+
+        thumbBtn.appendChild(img);
+        thumbBtn.appendChild(playBadge);
+
+        thumbBtn.addEventListener("click", () => {
+          openPreview("video", videoUrl);
+        });
+
+        // 名前＋コメント
+        const meta = document.createElement("div");
+        meta.className = "text-xs text-slate-600";
+        const nameEl = document.createElement("div");
+        nameEl.className = "font-semibold text-slate-900 truncate";
+        nameEl.textContent = name || "お名前なし";
+        meta.appendChild(nameEl);
+
+        if (comment) {
+          const comEl = document.createElement("div");
+          comEl.className = "mt-0.5 text-[11px] text-slate-500 whitespace-pre-wrap";
+          comEl.innerHTML = escapeHtml(comment);
+          meta.appendChild(comEl);
         }
+
+        // 「開いて保存」リンク
+        const saveLink = document.createElement("a");
+        saveLink.href = videoUrl;
+        saveLink.target = "_blank";
+        saveLink.rel = "noopener";
+        saveLink.className =
+          "mt-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold hover:bg-emerald-100 transition";
+        saveLink.textContent = "↓ 開いて保存";
+
+        card.appendChild(thumbBtn);
+        card.appendChild(meta);
+        card.appendChild(saveLink);
+
+        videoGrid.appendChild(card);
       });
     }
 
-    return card;
-  }
+    // ====== タブ切り替え ======
+    async function showPhotoTab() {
+      tabPhoto.classList.add("bg-emerald-500", "text-white", "shadow");
+      tabPhoto.classList.remove("text-emerald-700");
+      tabVideo.classList.remove("bg-emerald-500", "text-white", "shadow");
+      tabVideo.classList.add("text-emerald-700");
 
-  // ========= ギャラリー初期化 =========
-  async function initGallery() {
-    loadingEl.classList.remove("hidden");
-    globalErrorEl.classList.add("hidden");
-    photosGrid.innerHTML = "";
-    videosGrid.innerHTML = "";
+      photoSection.classList.remove("hidden");
+      videoSection.classList.add("hidden");
 
-    const [photos, videos] = await Promise.all([
-      fetchResources(imageListUrl),
-      fetchResources(videoListUrl),
-    ]);
-
-    loadingEl.classList.add("hidden");
-
-    // 写真
-    if (photos.length === 0) {
-      photosEmptyEl.classList.remove("hidden");
-    } else {
-      photosEmptyEl.classList.add("hidden");
-      const frag = document.createDocumentFragment();
-      photos.forEach((res) => frag.appendChild(createMediaCard(res, { isVideo: false })));
-      photosGrid.appendChild(frag);
+      if (!photoCache) {
+        photoStatus.textContent = "読み込み中です…";
+        const res = await fetchResources("image");
+        photoCache = res;
+        renderPhotos(photoCache);
+      }
     }
 
-    // 動画
-    if (videos.length === 0) {
-      videosEmptyEl.classList.remove("hidden");
-    } else {
-      videosEmptyEl.classList.add("hidden");
-      const frag = document.createDocumentFragment();
-      videos.forEach((res) => frag.appendChild(createMediaCard(res, { isVideo: true })));
-      videosGrid.appendChild(frag);
+    async function showVideoTab() {
+      tabVideo.classList.add("bg-emerald-500", "text-white", "shadow");
+      tabVideo.classList.remove("text-emerald-700");
+      tabPhoto.classList.remove("bg-emerald-500", "text-white", "shadow");
+      tabPhoto.classList.add("text-emerald-700");
+
+      videoSection.classList.remove("hidden");
+      photoSection.classList.add("hidden");
+
+      if (!videoCache) {
+        videoStatus.textContent = "読み込み中です…";
+        const res = await fetchResources("video");
+        videoCache = res;
+        renderVideos(videoCache);
+      }
     }
-  }
 
-  // ========= タブ切り替え =========
-  function showTab(kind) {
-    const isPhotos = kind === "photos";
+    tabPhoto.addEventListener("click", showPhotoTab);
+    tabVideo.addEventListener("click", showVideoTab);
 
-    if (isPhotos) {
-      photosSection.classList.remove("hidden");
-      videosSection.classList.add("hidden");
-
-      tabPhotosBtn.classList.add("bg-emerald-600", "text-white", "shadow-sm");
-      tabPhotosBtn.classList.remove("text-emerald-700");
-
-      tabVideosBtn.classList.remove("bg-emerald-600", "text-white", "shadow-sm");
-      tabVideosBtn.classList.add("text-emerald-700");
-    } else {
-      photosSection.classList.add("hidden");
-      videosSection.classList.remove("hidden");
-
-      tabVideosBtn.classList.add("bg-emerald-600", "text-white", "shadow-sm");
-      tabVideosBtn.classList.remove("text-emerald-700");
-
-      tabPhotosBtn.classList.remove("bg-emerald-600", "text-white", "shadow-sm");
-      tabPhotosBtn.classList.add("text-emerald-700");
-    }
-  }
-
-  tabPhotosBtn.addEventListener("click", () => showTab("photos"));
-  tabVideosBtn.addEventListener("click", () => showTab("videos"));
-
-  // 初期は写真タブ
-  showTab("photos");
-
-  // 初期ロード
-  initGallery();
-</script>
-
+    // 初期表示は写真タブ
+    (async () => {
+      await showPhotoTab();
+    })();
+  </script>
 </body>
 </html>
