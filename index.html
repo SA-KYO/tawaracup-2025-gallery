@@ -13,6 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
+  <!-- Cloudinary Product Gallery（フォールバック用） -->
+  <link rel="stylesheet" href="https://product-gallery.cloudinary.com/all.css">
+  <script src="https://product-gallery.cloudinary.com/all.js"></script>
+
   <style>
     body {
       font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -21,7 +25,6 @@
       font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
       letter-spacing: 0.08em;
     }
-    /* 名前・コメントが長いときに2行くらいで切る用（簡易） */
     .comment-text {
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -34,9 +37,9 @@
 
   <div class="max-w-5xl mx-auto">
 
-    <!-- 上部ヘッダー -->
+    <!-- ヘッダー -->
     <header class="flex items-center justify-between mb-4">
-      <div class="flex flex-col">
+      <div>
         <span class="inline-flex items-center px-4 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold mb-2 shadow-sm">
           <span class="mr-1">🏌️</span>多和楽杯2025 コンペ
         </span>
@@ -48,28 +51,16 @@
         </p>
       </div>
 
-      <!-- アップロード画面に戻る -->
       <a
         href="https://tawaracup-2025-photo.netlify.app/"
-        class="hidden sm:inline-flex items-center gap-1 text-xs md:text-sm text-emerald-700 font-semibold border border-emerald-200 rounded-full px-3 py-1 hover:bg-emerald-50 transition"
+        class="inline-flex items-center gap-1 text-xs md:text-sm text-emerald-700 font-semibold border border-emerald-200 rounded-full px-3 py-1 hover:bg-emerald-50 transition"
       >
         ← アップロード画面に戻る
       </a>
     </header>
 
-    <!-- スマホ用の戻るボタン -->
-    <div class="sm:hidden mb-3">
-      <a
-        href="https://tawaracup-2025-photo.netlify.app/"
-        class="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold border border-emerald-200 rounded-full px-3 py-1 hover:bg-emerald-50 transition"
-      >
-        ← アップロード画面に戻る
-      </a>
-    </div>
-
     <!-- タブ + 説明 -->
     <section class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border border-emerald-100 p-4 md:p-6 mb-6">
-      <!-- タブ -->
       <div class="flex rounded-full bg-emerald-50 p-1 mb-4 max-w-xs mx-auto">
         <button
           id="tabPhotos"
@@ -87,7 +78,7 @@
         </button>
       </div>
 
-      <!-- 説明（スマホのみ。PC文言は削除済み） -->
+      <!-- スマホ向け説明のみ -->
       <p class="text-xs md:text-sm text-slate-600 leading-relaxed">
         スマホ：<span class="font-semibold">サムネイル</span> または
         <span class="font-semibold">「↓ 開いて保存」</span> をタップすると
@@ -97,7 +88,7 @@
       </p>
     </section>
 
-    <!-- 写真一覧 -->
+    <!-- 写真セクション -->
     <section id="photosSection" class="mb-10">
       <h2 class="flex items-center gap-2 text-lg md:text-xl font-bold text-slate-900 mb-3">
         <span>📸</span><span>写真一覧</span>
@@ -107,22 +98,32 @@
         「↓ 開いて保存」からも同じ画面を開けます。
       </p>
 
+      <!-- JSON で取得してグリッド表示する領域 -->
       <div id="photosGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <p id="photosMessage" class="text-xs md:text-sm text-slate-500 mt-3"></p>
+
+      <!-- JSON が失敗したときのフォールバック（Cloudinary Product Gallery） -->
+      <div id="photosFallback" class="mt-4 hidden">
+        <div id="photosFallbackInner" class="bg-white rounded-2xl shadow border border-emerald-50 p-2"></div>
+      </div>
     </section>
 
-    <!-- 動画一覧 -->
+    <!-- 動画セクション -->
     <section id="videosSection" class="hidden mb-10">
       <h2 class="flex items-center gap-2 text-lg md:text-xl font-bold text-slate-900 mb-3">
         <span>🎬</span><span>動画一覧</span>
       </h2>
       <p class="text-xs md:text-sm text-slate-500 mb-3">
         動画サムネイルをタップすると別タブで再生できます。
-        「↓ 開いて保存」から同じ画面を開いて、長押し →「ビデオを保存」で保存できます。
+        「↓ 開いて保存」から開いた画面を長押し →「ビデオを保存」で保存できます。
       </p>
 
       <div id="videosGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <p id="videosMessage" class="text-xs md:text-sm text-slate-500 mt-3"></p>
+
+      <div id="videosFallback" class="mt-4 hidden">
+        <div id="videosFallbackInner" class="bg-white rounded-2xl shadow border border-emerald-50 p-2"></div>
+      </div>
     </section>
 
     <footer class="text-center text-[11px] text-slate-400 mt-10 mb-4">
@@ -133,7 +134,7 @@
   <script>
     // ====== Cloudinary 設定 ======
     const CLOUD_NAME = "dpef3dzrk";
-    const TAG = "tawarahai2025";
+    const TAG = "tawarahai2025";         // アップロード時の tags と合わせる
 
     const IMAGE_LIST_URL =
       `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
@@ -144,34 +145,41 @@
     const tabVideos = document.getElementById("tabVideos");
     const photosSection = document.getElementById("photosSection");
     const videosSection = document.getElementById("videosSection");
+
     const photosGrid = document.getElementById("photosGrid");
     const videosGrid = document.getElementById("videosGrid");
     const photosMessage = document.getElementById("photosMessage");
     const videosMessage = document.getElementById("videosMessage");
+    const photosFallback = document.getElementById("photosFallback");
+    const videosFallback = document.getElementById("videosFallback");
 
     let photosLoaded = false;
     let videosLoaded = false;
+    let photosFallbackRendered = false;
+    let videosFallbackRendered = false;
 
+    // ==== 共通ユーティリティ ====
     function setActiveTab(tab) {
       if (tab === "photos") {
         photosSection.classList.remove("hidden");
         videosSection.classList.add("hidden");
-        tabPhotos.classList.add("bg-white","text-emerald-700","shadow-sm");
+        tabPhotos.classList.add("bg-white", "text-emerald-700", "shadow-sm");
         tabPhotos.classList.remove("text-emerald-600/70");
-        tabVideos.classList.remove("bg-white","text-emerald-700","shadow-sm");
+        tabVideos.classList.remove("bg-white", "text-emerald-700", "shadow-sm");
         tabVideos.classList.add("text-emerald-600/70");
       } else {
         photosSection.classList.add("hidden");
         videosSection.classList.remove("hidden");
-        tabVideos.classList.add("bg-white","text-emerald-700","shadow-sm");
+        tabVideos.classList.add("bg-white", "text-emerald-700", "shadow-sm");
         tabVideos.classList.remove("text-emerald-600/70");
-        tabPhotos.classList.remove("bg-white","text-emerald-700","shadow-sm");
+        tabPhotos.classList.remove("bg-white", "text-emerald-700", "shadow-sm");
         tabPhotos.classList.add("text-emerald-600/70");
       }
     }
 
     function openInNewTab(url) {
       if (!url) return;
+      // about:blank ではなく、Cloudinary の URL を直接開く
       window.open(url, "_blank", "noopener");
     }
 
@@ -179,11 +187,12 @@
       if (!v) return "";
       try {
         return decodeURIComponent(v);
-      } catch (e) {
+      } catch {
         return v;
       }
     }
 
+    // ==== 写真グリッド描画 ====
     function renderPhotos(resources) {
       photosGrid.innerHTML = "";
       if (!resources || resources.length === 0) {
@@ -201,7 +210,7 @@
         const card = document.createElement("div");
         card.className = "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
-        // 画像サムネイル（グリッド上で長押し保存も可能）
+        // サムネイル（グリッド上で長押しすると iOS の保存メニューが出る）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
         thumbBtn.className = "relative aspect-[3/4] overflow-hidden bg-slate-100";
@@ -214,7 +223,6 @@
         img.className = "w-full h-full object-cover";
         thumbBtn.appendChild(img);
 
-        // 下部情報
         const info = document.createElement("div");
         info.className = "p-2 md:p-3 flex-1 flex flex-col";
 
@@ -243,6 +251,7 @@
       });
     }
 
+    // ==== 動画グリッド描画 ====
     function renderVideos(resources) {
       videosGrid.innerHTML = "";
       if (!resources || resources.length === 0) {
@@ -260,17 +269,17 @@
         const card = document.createElement("div");
         card.className = "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
-        // 動画サムネイル（ここで長押しすれば「ビデオを保存」が出やすい）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
         thumbBtn.className = "relative aspect-video overflow-hidden bg-black";
         thumbBtn.addEventListener("click", () => openInNewTab(url));
 
+        // サムネイル動画（ここで長押し →「ビデオを保存」が出る）
         const video = document.createElement("video");
         video.src = url;
         video.muted = true;
-        video.playsInline = true;
         video.loop = true;
+        video.playsInline = true;
         video.autoplay = true;
         video.className = "w-full h-full object-cover";
         thumbBtn.appendChild(video);
@@ -303,58 +312,111 @@
       });
     }
 
+    // ==== フォールバック（Cloudinary Product Gallery） ====
+    function showPhotosFallback() {
+      if (photosFallbackRendered) return;
+      photosFallback.classList.remove("hidden");
+      photosMessage.textContent =
+        "読み込みで問題が発生したため、簡易ギャラリー表示に切り替えました。";
+
+      if (window.cloudinary) {
+        const gallery = cloudinary.galleryWidget({
+          cloudName: CLOUD_NAME,
+          container: "#photosFallbackInner",
+          mediaAssets: [{ tag: TAG, mediaType: "image" }],
+          aspectRatio: "3:4",
+          zoom: true,
+          carouselStyle: "thumbnails",
+          themeProps: { primary: "#059669", active: "#047857" }
+        });
+        gallery.render();
+      }
+      photosFallbackRendered = true;
+    }
+
+    function showVideosFallback() {
+      if (videosFallbackRendered) return;
+      videosFallback.classList.remove("hidden");
+      videosMessage.textContent =
+        "読み込みで問題が発生したため、簡易ギャラリー表示に切り替えました。";
+
+      if (window.cloudinary) {
+        const gallery = cloudinary.galleryWidget({
+          cloudName: CLOUD_NAME,
+          container: "#videosFallbackInner",
+          mediaAssets: [{ tag: TAG, mediaType: "video" }],
+          aspectRatio: "16:9",
+          zoom: true,
+          carouselStyle: "thumbnails",
+          themeProps: { primary: "#059669", active: "#047857" }
+        });
+        gallery.render();
+      }
+      videosFallbackRendered = true;
+    }
+
+    // ==== Cloudinary からの読み込み ====
     async function loadPhotos() {
+      if (photosLoaded || photosFallbackRendered) return;
+
       photosMessage.textContent = "読み込み中です…";
       try {
         const res = await fetch(IMAGE_LIST_URL);
         if (!res.ok) {
-          if (res.status === 404) {
-            photosMessage.textContent = "まだ写真は投稿されていません。";
-            return;
-          }
-          throw new Error("status " + res.status);
+          // 404 含め、JSON 取得に失敗したらフォールバックへ
+          console.error("photos status:", res.status);
+          showPhotosFallback();
+          return;
         }
         const data = await res.json();
-        renderPhotos(data.resources || []);
+        if (!data.resources || data.resources.length === 0) {
+          photosMessage.textContent = "まだ写真は投稿されていません。";
+        } else {
+          renderPhotos(data.resources);
+        }
         photosLoaded = true;
       } catch (err) {
         console.error("loadPhotos error:", err);
-        photosMessage.textContent = "写真の読み込みに失敗しました。時間をおいて再度お試しください。";
+        showPhotosFallback();
       }
     }
 
     async function loadVideos() {
+      if (videosLoaded || videosFallbackRendered) return;
+
       videosMessage.textContent = "読み込み中です…";
       try {
         const res = await fetch(VIDEO_LIST_URL);
         if (!res.ok) {
-          if (res.status === 404) {
-            videosMessage.textContent = "まだ動画は投稿されていません。";
-            return;
-          }
-          throw new Error("status " + res.status);
+          console.error("videos status:", res.status);
+          showVideosFallback();
+          return;
         }
         const data = await res.json();
-        renderVideos(data.resources || []);
+        if (!data.resources || data.resources.length === 0) {
+          videosMessage.textContent = "まだ動画は投稿されていません。";
+        } else {
+          renderVideos(data.resources);
+        }
         videosLoaded = true;
       } catch (err) {
         console.error("loadVideos error:", err);
-        videosMessage.textContent = "動画の読み込みに失敗しました。時間をおいて再度お試しください。";
+        showVideosFallback();
       }
     }
 
-    // タブイベント
+    // ==== タブイベント ====
     tabPhotos.addEventListener("click", () => {
       setActiveTab("photos");
-      if (!photosLoaded) loadPhotos();
+      loadPhotos();
     });
 
     tabVideos.addEventListener("click", () => {
       setActiveTab("videos");
-      if (!videosLoaded) loadVideos();
+      loadVideos();
     });
 
-    // 初期表示は写真タブ
+    // 初期状態：写真タブを表示して読み込み
     setActiveTab("photos");
     loadPhotos();
   </script>
