@@ -158,17 +158,14 @@
   </main>
 
   <script>
-    // Cloudinary設定
+    // Cloudinary設定（ここも「表示されていた時」と同じに戻す）
     const CLOUD_NAME = "dpef3dzrk";
-    // ハイフン無し／有りの両タグを順に見る
-    const TAGS = ["tawarahai2025", "tawarahai-2025"];
+    const TAG = "tawarahai2025";  // ★タグはハイフン無し
 
-    const PHOTO_LIST_URLS = TAGS.map(
-      (tag) => `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${tag}.json`
-    );
-    const VIDEO_LIST_URLS = TAGS.map(
-      (tag) => `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${tag}.json`
-    );
+    const PHOTO_LIST_URL =
+      `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
+    const VIDEO_LIST_URL =
+      `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
 
     const tabPhotos = document.getElementById("tabPhotos");
     const tabVideos = document.getElementById("tabVideos");
@@ -224,35 +221,23 @@
       }
     }
 
-    // 共通：複数のURLを順番に試して最初にヒットしたリストを返す
-    async function fetchResourceList(urls) {
-      for (let i = 0; i < urls.length; i++) {
-        try {
-          const res = await fetch(urls[i], { cache: "no-cache" });
-          if (!res.ok) continue;
-          const data = await res.json();
-          const resources = data.resources || data || [];
-          if (Array.isArray(resources) && resources.length > 0) {
-            return resources;
-          }
-        } catch (e) {
-          console.warn("list fetch error", urls[i], e);
-        }
-      }
-      return [];
-    }
-
+    // ===== 写真読み込み（シンプル版） =====
     async function loadPhotos() {
       photoMessageEl.textContent = "読み込み中です…";
       photoListEl.innerHTML = "";
+
       try {
-        const resources = await fetchResourceList(PHOTO_LIST_URLS);
+        const res = await fetch(PHOTO_LIST_URL, { cache: "no-cache" });
+        if (!res.ok) throw new Error("failed");
+        const data = await res.json();
+        const resources = data.resources || data || [];
         photoLoaded = true;
 
         if (!resources.length) {
           photoMessageEl.textContent = "まだ写真がアップロードされていません。";
           return;
         }
+
         photoMessageEl.textContent = "";
         renderPhotos(resources);
       } catch (e) {
@@ -264,6 +249,7 @@
 
     function renderPhotos(items) {
       photoListEl.innerHTML = "";
+
       items.forEach((item, index) => {
         const imageUrl = item.secure_url;
         if (!imageUrl) return;
@@ -324,17 +310,23 @@
       });
     }
 
+    // ===== 動画読み込み =====
     async function loadVideos() {
       videoMessageEl.textContent = "読み込み中です…";
       videoListEl.innerHTML = "";
+
       try {
-        const resources = await fetchResourceList(VIDEO_LIST_URLS);
+        const res = await fetch(VIDEO_LIST_URL, { cache: "no-cache" });
+        if (!res.ok) throw new Error("failed");
+        const data = await res.json();
+        const resources = data.resources || data || [];
         videoLoaded = true;
 
         if (!resources.length) {
           videoMessageEl.textContent = "まだ動画がアップロードされていません。";
           return;
         }
+
         videoMessageEl.textContent = "";
         renderVideos(resources);
       } catch (e) {
@@ -346,6 +338,7 @@
 
     function renderVideos(items) {
       videoListEl.innerHTML = "";
+
       items.forEach((item, index) => {
         const videoUrl = item.secure_url;
         if (!videoUrl) return;
@@ -402,13 +395,16 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
+        // ★動画のみ：ダウンロードを実行（iPhoneでは「ファイル」に入る）
         openBtn.addEventListener("click", async () => {
           const baseName = (item.public_id || "").split("/").pop() || "video";
           const fileName = `${baseName}.${item.format || "mp4"}`;
+
           try {
             const response = await fetch(videoUrl);
             if (!response.ok) throw new Error("download failed");
             const blob = await response.blob();
+
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
@@ -416,6 +412,7 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+
             setTimeout(() => {
               window.URL.revokeObjectURL(blobUrl);
             }, 10000);
