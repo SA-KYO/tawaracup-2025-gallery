@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多和楽杯2025 写真・動画ギャラリー</title>
 
+  <!-- Tailwind CSS（CDN版 ※本番ではビルド推奨） -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
     body {
@@ -19,6 +24,7 @@
       font-family: 'Poppins', 'Noto Sans JP', system-ui, sans-serif;
       letter-spacing: 0.08em;
     }
+    /* 多和楽杯バッジのキラッ ✨ */
     .tw-badge-shine {
       position: relative;
       overflow: hidden;
@@ -50,23 +56,36 @@
   <main class="max-w-5xl mx-auto px-4 py-8 md:py-10">
     <!-- ヘッダー -->
     <header class="mb-6 md:mb-8">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs md:text-sm font-semibold tw-badge-shine shadow-sm">
+      <div
+        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs md:text-sm font-semibold tw-badge-shine shadow-sm"
+      >
         <span class="text-lg">🏌️‍♂️</span>
         <span>多和楽杯2025 コンペ</span>
       </div>
 
-      <div class="mt-4">
-        <h1 class="title-font text-2xl md:text-3xl font-bold text-slate-900">
-          写真・動画ギャラリー
-        </h1>
-        <p class="mt-1 text-sm md:text-base text-slate-600">
-          コンペ当日にみんながアップしてくれたベストショットが並びます。
-        </p>
+      <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h1 class="title-font text-2xl md:text-3xl font-bold text-slate-900">
+            写真・動画ギャラリー
+          </h1>
+          <p class="mt-1 text-sm md:text-base text-slate-600">
+            コンペ当日にみんながアップしてくれたベストショットが並びます。
+          </p>
+        </div>
+
+        <!-- 上部：アップロード画面に戻る -->
+        <a
+          href="https://tawaracup-2025-photo.netlify.app"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-emerald-300 bg-white text-emerald-700 text-xs md:text-sm font-semibold shadow-sm hover:bg-emerald-50 transition"
+        >
+          ← アップロード画面に戻る
+        </a>
       </div>
     </header>
 
     <!-- タブ & 説明カード -->
     <section class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-emerald-100 p-4 md:p-6 mb-6 md:mb-8">
+      <!-- タブ -->
       <div class="flex justify-center mb-4">
         <div class="inline-flex rounded-full bg-emerald-50 p-1">
           <button
@@ -88,17 +107,12 @@
         </div>
       </div>
 
+      <!-- 説明文 -->
       <div class="text-xs md:text-sm text-slate-600 space-y-1 leading-relaxed">
         <p>
           スマホ：サムネイル または「↓ 開いて保存」をタップすると、写真／動画が別タブで開きます。
           その画面を <span class="font-semibold">長押し</span> して
           <span class="font-semibold">「写真に保存」／「ビデオを保存」</span> を選んでください。
-        </p>
-        <p class="text-[11px] md:text-xs text-slate-500">
-          ※LINEのブラウザでは「…」→「ビデオを保存」が出ない場合があります。
-          そのときは、右下メニューから
-          <span class="font-semibold">「Safariで開く」→ 共有メニュー →「ビデオを保存／ファイルに保存」</span>
-          をお試しください。
         </p>
       </div>
     </section>
@@ -114,7 +128,7 @@
       </p>
 
       <div id="photoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <!-- 写真カード -->
+        <!-- 写真カードがここに挿入されます -->
       </div>
       <p id="photoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
@@ -131,78 +145,90 @@
       </p>
 
       <div id="videoList" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <!-- 動画カード -->
+        <!-- 動画カードがここに挿入されます -->
       </div>
       <p id="videoMessage" class="mt-4 text-center text-xs md:text-sm text-slate-500"></p>
     </section>
 
-    <!-- 下部ナビボタン -->
-    <section class="mt-8 flex flex-col md:flex-row md:justify-center gap-3">
-      <a
-        href="https://tawaracup-2025-photo.netlify.app/?openExternalBrowser=1"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-emerald-300 bg-white text-emerald-700 text-xs md:text-sm font-semibold shadow-sm hover:bg-emerald-50 transition"
-      >
-        ← アップロード画面に戻る
-      </a>
-      <a
-        href="https://tawara-golf.netlify.app/?openExternalBrowser=1"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-xs md:text-sm font-semibold shadow-sm hover:bg-slate-100 transition"
-      >
-        🌐 本サイトトップへ
-      </a>
+    <!-- 下部ナビ（アップロード & 本サイトへ） -->
+    <section class="mt-10 md:mt-12">
+      <div class="flex flex-col md:flex-row md:justify-center gap-3 md:gap-4">
+        <a
+          href="https://tawaracup-2025-photo.netlify.app"
+          class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-emerald-300 bg-white text-emerald-700 text-xs md:text-sm font-semibold shadow-sm hover:bg-emerald-50 transition"
+        >
+          ⬆️ 写真・動画をアップロードする
+        </a>
+        <a
+          href="https://tawara-golf.netlify.app/"
+          class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-slate-200 bg-slate-900 text-white text-xs md:text-sm font-semibold shadow-sm hover:bg-slate-800 transition"
+        >
+          🏠 本サイトTOPへ戻る
+        </a>
+      </div>
     </section>
 
+    <!-- フッター -->
     <footer class="mt-10 md:mt-12 text-center text-[11px] md:text-xs text-slate-400">
       © 2025 多和楽杯コンペ実行委員会
     </footer>
   </main>
 
   <script>
-    // Cloudinary設定（ここも「表示されていた時」と同じに戻す）
+    // ===== Cloudinary 設定 =====
     const CLOUD_NAME = "dpef3dzrk";
-    const TAG = "tawarahai2025";  // ★タグはハイフン無し
+    const TAG = "tawarahai2025";  // ★ Cloudinary側のタグ名と必ず一致させる
 
-    const PHOTO_LIST_URL =
-      `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
-    const VIDEO_LIST_URL =
-      `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
+    const PHOTO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
+    const VIDEO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
 
+    // ===== DOM 取得 =====
     const tabPhotos = document.getElementById("tabPhotos");
     const tabVideos = document.getElementById("tabVideos");
     const sectionPhotos = document.getElementById("sectionPhotos");
     const sectionVideos = document.getElementById("sectionVideos");
+
     const photoListEl = document.getElementById("photoList");
     const videoListEl = document.getElementById("videoList");
     const photoMessageEl = document.getElementById("photoMessage");
     const videoMessageEl = document.getElementById("videoMessage");
 
+    // キャッシュ
     let photoLoaded = false;
     let videoLoaded = false;
 
+    // ===== タブ切り替え =====
     function setActiveTab(tab) {
       if (tab === "photos") {
         tabPhotos.classList.add("bg-emerald-600", "text-white", "shadow-sm");
         tabPhotos.classList.remove("text-emerald-700");
         tabVideos.classList.remove("bg-emerald-600", "text-white", "shadow-sm");
         tabVideos.classList.add("text-emerald-700");
+
         sectionPhotos.classList.remove("hidden");
         sectionVideos.classList.add("hidden");
+
         if (!photoLoaded) loadPhotos();
       } else {
         tabVideos.classList.add("bg-emerald-600", "text-white", "shadow-sm");
         tabVideos.classList.remove("text-emerald-700");
         tabPhotos.classList.remove("bg-emerald-600", "text-white", "shadow-sm");
         tabPhotos.classList.add("text-emerald-700");
+
         sectionVideos.classList.remove("hidden");
         sectionPhotos.classList.add("hidden");
+
         if (!videoLoaded) loadVideos();
       }
     }
 
     tabPhotos.addEventListener("click", () => setActiveTab("photos"));
     tabVideos.addEventListener("click", () => setActiveTab("videos"));
+
+    // 初期表示は写真
     setActiveTab("photos");
 
+    // ===== Utility: 名前・コメント取得 =====
     function getCaption(item) {
       try {
         const raw = item?.context?.custom?.caption || "";
@@ -221,16 +247,19 @@
       }
     }
 
-    // ===== 写真読み込み（シンプル版） =====
+    // ===== 写真読み込み =====
     async function loadPhotos() {
       photoMessageEl.textContent = "読み込み中です…";
       photoListEl.innerHTML = "";
 
       try {
-        const res = await fetch(PHOTO_LIST_URL, { cache: "no-cache" });
-        if (!res.ok) throw new Error("failed");
+        console.log("PHOTO_LIST_URL:", PHOTO_LIST_URL);
+        const res = await fetch(PHOTO_LIST_URL);
+        if (!res.ok) throw new Error("photo list fetch failed");
         const data = await res.json();
+
         const resources = data.resources || data || [];
+        console.log("photo resources:", resources.length);
         photoLoaded = true;
 
         if (!resources.length) {
@@ -241,9 +270,8 @@
         photoMessageEl.textContent = "";
         renderPhotos(resources);
       } catch (e) {
-        console.error(e);
-        photoMessageEl.textContent =
-          "読み込みに失敗しました。時間をおいて再度お試しください。";
+        console.error("loadPhotos error:", e);
+        photoMessageEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
       }
     }
 
@@ -261,19 +289,22 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
+        // サムネイル（少し縦長）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
-        thumbBtn.className = "relative w-full pt-[75%] overflow-hidden bg-slate-100";
+        thumbBtn.className = "relative w-full pt-[80%] overflow-hidden bg-slate-100";
         const img = document.createElement("img");
         img.src = imageUrl;
         img.alt = comment || name || `photo-${index + 1}`;
         img.loading = "lazy";
         img.className = "absolute inset-0 w-full h-full object-cover";
         thumbBtn.appendChild(img);
+
         thumbBtn.addEventListener("click", () => {
           window.open(imageUrl, "_blank");
         });
 
+        // テキスト部
         const body = document.createElement("div");
         body.className = "px-3 pt-2 pb-3 flex flex-col gap-1";
 
@@ -282,10 +313,10 @@
         nameEl.textContent = name;
 
         const commentEl = document.createElement("p");
-        commentEl.className =
-          "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
+        commentEl.className = "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
         commentEl.textContent = comment || "";
 
+        // ボタン
         const btnWrapper = document.createElement("div");
         btnWrapper.className = "mt-2";
 
@@ -294,6 +325,7 @@
         openBtn.className =
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
+
         openBtn.addEventListener("click", () => {
           window.open(imageUrl, "_blank");
         });
@@ -316,10 +348,13 @@
       videoListEl.innerHTML = "";
 
       try {
-        const res = await fetch(VIDEO_LIST_URL, { cache: "no-cache" });
-        if (!res.ok) throw new Error("failed");
+        console.log("VIDEO_LIST_URL:", VIDEO_LIST_URL);
+        const res = await fetch(VIDEO_LIST_URL);
+        if (!res.ok) throw new Error("video list fetch failed");
         const data = await res.json();
+
         const resources = data.resources || data || [];
+        console.log("video resources:", resources.length);
         videoLoaded = true;
 
         if (!resources.length) {
@@ -330,9 +365,8 @@
         videoMessageEl.textContent = "";
         renderVideos(resources);
       } catch (e) {
-        console.error(e);
-        videoMessageEl.textContent =
-          "読み込みに失敗しました。時間をおいて再度お試しください。";
+        console.error("loadVideos error:", e);
+        videoMessageEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
       }
     }
 
@@ -350,13 +384,13 @@
         card.className =
           "bg-white rounded-2xl shadow-sm border border-emerald-50 overflow-hidden flex flex-col";
 
+        // サムネイル（写真と同じサイズのグリッド）
         const thumbBtn = document.createElement("button");
         thumbBtn.type = "button";
-        thumbBtn.className =
-          "relative w-full pt-[75%] overflow-hidden bg-black";
+        thumbBtn.className = "relative w-full pt-[80%] overflow-hidden bg-black";
 
         const videoThumb = document.createElement("video");
-        videoThumb.src = videoUrl;
+        videoThumb.src = videoUrl + "#t=0.1"; // 先頭フレームからサムネイル
         videoThumb.className = "absolute inset-0 w-full h-full object-cover";
         videoThumb.muted = true;
         videoThumb.playsInline = true;
@@ -374,6 +408,7 @@
           window.open(videoUrl, "_blank");
         });
 
+        // テキスト部
         const body = document.createElement("div");
         body.className = "px-3 pt-2 pb-3 flex flex-col gap-1";
 
@@ -382,10 +417,10 @@
         nameEl.textContent = name;
 
         const commentEl = document.createElement("p");
-        commentEl.className =
-          "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
+        commentEl.className = "text-[11px] text-slate-500 line-clamp-2 min-h-[1.5em]";
         commentEl.textContent = comment || "";
 
+        // 「開いて保存」ボタン（動画のみ：ダウンロード）
         const btnWrapper = document.createElement("div");
         btnWrapper.className = "mt-2";
 
@@ -395,7 +430,6 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-        // ★動画のみ：ダウンロードを実行（iPhoneでは「ファイル」に入る）
         openBtn.addEventListener("click", async () => {
           const baseName = (item.public_id || "").split("/").pop() || "video";
           const fileName = `${baseName}.${item.format || "mp4"}`;
