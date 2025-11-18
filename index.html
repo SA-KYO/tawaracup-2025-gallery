@@ -114,6 +114,12 @@
           その画面を <span class="font-semibold">長押し</span> して
           <span class="font-semibold">「写真に保存」／「ビデオを保存」</span> を選んでください。
         </p>
+        <p class="text-[11px] md:text-xs text-slate-500">
+          ※LINEのブラウザでは「…」→「ビデオを保存」が出ない場合があります。
+          そのときは、右下メニューから
+          <span class="font-semibold">「Safariで開く」→ 共有メニュー →「ビデオを保存／ファイルに保存」</span>
+          をお試しください。
+        </p>
       </div>
     </section>
 
@@ -177,7 +183,7 @@
   <script>
     // ===== Cloudinary 設定 =====
     const CLOUD_NAME = "dpef3dzrk";
-    const TAG = "tawarahai2025";  // ★ Cloudinary側のタグ名と必ず一致させる
+    const TAG = "tawarahai2025";  // Cloudinary側のタグ名と必ず一致
 
     const PHOTO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${TAG}.json`;
     const VIDEO_LIST_URL = `https://res.cloudinary.com/${CLOUD_NAME}/video/list/${TAG}.json`;
@@ -279,7 +285,8 @@
       photoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const imageUrl = item.secure_url;
+        // ★ secure_url が無い場合は url を使う
+        const imageUrl = item.secure_url || item.url;
         if (!imageUrl) return;
 
         const name = getCaption(item) || "ゲスト";
@@ -374,7 +381,8 @@
       videoListEl.innerHTML = "";
 
       items.forEach((item, index) => {
-        const videoUrl = item.secure_url;
+        // ★ secure_url が無い場合は url を使う
+        const videoUrl = item.secure_url || item.url;
         if (!videoUrl) return;
 
         const name = getCaption(item) || "ゲスト";
@@ -390,7 +398,7 @@
         thumbBtn.className = "relative w-full pt-[80%] overflow-hidden bg-black";
 
         const videoThumb = document.createElement("video");
-        videoThumb.src = videoUrl + "#t=0.1"; // 先頭フレームからサムネイル
+        videoThumb.src = videoUrl + "#t=0.1";
         videoThumb.className = "absolute inset-0 w-full h-full object-cover";
         videoThumb.muted = true;
         videoThumb.playsInline = true;
