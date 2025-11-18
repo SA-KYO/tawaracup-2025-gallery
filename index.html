@@ -418,6 +418,7 @@
           '<div class="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center text-white text-xl">▶︎</div>';
         thumbBtn.appendChild(playIcon);
 
+        // サムネタップ → 別タブ再生
         thumbBtn.addEventListener("click", () => {
           window.open(videoUrl, "_blank");
         });
@@ -444,8 +445,33 @@
           "w-full inline-flex items-center justify-center gap-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold py-1.5 hover:bg-emerald-100 transition";
         openBtn.innerHTML = "↓ <span>開いて保存</span>";
 
-        openBtn.addEventListener("click", () => {
-          window.open(videoUrl, "_blank");
+        // ★ここが動画だけのダウンロード処理★
+        openBtn.addEventListener("click", async () => {
+          const baseName = (item.public_id || "").split("/").pop() || "video";
+          const fileName = `${baseName}.${item.format || "mp4"}`;
+
+          try {
+            const response = await fetch(videoUrl);
+            if (!response.ok) throw new Error("download failed: " + response.status);
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            setTimeout(() => {
+              window.URL.revokeObjectURL(blobUrl);
+            }, 10000);
+          } catch (err) {
+            console.error("download error", err);
+            // 失敗した時だけ、従来通り別タブ再生にフォールバック
+            window.open(videoUrl, "_blank");
+          }
         });
 
         btnWrapper.appendChild(openBtn);
